@@ -34,7 +34,13 @@ ion-item{
     padding-top: 20px;
     .sign-btn{
        --ion-primary-color:#215AB7;
+       --background-activated:#9ca3b0;
+       --background-focused:#9ca3b0;
+       --background-hover:#647B9D;
        color:#F4F6FA; 
+       border-radius:25px;
+       --background:#215AB7;
+       background-color: #215AB7;
     }
 }
 
@@ -60,4 +66,29 @@ ion-item{
 ion-card{
    --ion-background-color: transparent; 
    box-shadow:none !important;
+}
+
+.ion-card-footer{
+    width: 100%;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+   span{
+    color:#85888D;
+    font-size: 13px;
+    font-weight: 200;
+
+   }
+
+   button{
+    background-color: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    padding-left: 3px;
+   }
+
+   button:hover{
+    color:#969393
+   }
 }

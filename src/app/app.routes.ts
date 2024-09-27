@@ -11,10 +11,7 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
  
-  {
-    path: 'registerform',
-    loadComponent: () => import('./registerform/registerform.page').then( m => m.RegisterformPage)
-  },
+ 
   {
     path: 'login',
     loadComponent: () => import('./login/login.page').then( m => m.LoginPage)
@@ -22,6 +19,14 @@ export const routes: Routes = [
   {
     path: 'loginscreen',
     loadComponent: () => import('./loginscreen/loginscreen.page').then( m => m.LoginscreenPage)
+  },
+  {
+    path: 'signup',
+    loadComponent: () => import('./signup/signup.page').then( m => m.SignupPage)
+  },
+  {
+    path: 'passwordreset',
+    loadComponent: () => import('./passwordreset/passwordreset.page').then( m => m.PasswordresetPage)
   },
 
 ];
