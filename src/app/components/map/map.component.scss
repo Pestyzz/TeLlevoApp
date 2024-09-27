@@ -1,0 +1,20 @@
+:host ::ng-deep #map {
+  position: unset !important;
+  height: 100% !important;
+  width: 100% !important;
+  background-color: transparent !important;
+  transition: opacity 150ms ease-in !important;
+}
+
+:host ::ng-deep #map.visible {
+  opacity: 1 !important;
+}
+
+:host ::ng-deep .gm-style-cc {
+  display: none !important;
+}
+
+:host ::ng-deep .gmnoprint a, 
+:host ::ng-deep .gmnoprint span {
+  display: none !important;
+}

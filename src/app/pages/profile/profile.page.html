@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/']" shape="round" class="back-button">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        Volver
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="ion-text-end">
+      <div class="title-content">
+        <ion-icon name="person" color="primary"></ion-icon>
+        <span>Perfil</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="tertiary">
+  <div class="ion-padding profile-container">
+    <ion-avatar class="profile-avatar">
+      <img src="https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_25.png" alt="Profile Picture">
+    </ion-avatar>
+    <h2 class="profile-name">{{ userName }}</h2>
+    <ion-list mode="md" class="ion-padding">
+      <ion-item>
+        <ion-label>Email:</ion-label>
+        <ion-text>{{ userEmail }}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Teléfono:</ion-label>
+        <ion-text>+ {{ userPhone }}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Rol</ion-label>
+        <ion-text>Estudiante</ion-text>
+      </ion-item>
+    </ion-list>
+    <ion-button expand="full" color="primary" shape="round" class="edit-button" (click)="openEditModal()">Editar Perfil</ion-button>
+  </div>
+</ion-content>
+
+<app-tab-bar></app-tab-bar>
