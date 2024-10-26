@@ -3,6 +3,14 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
+    loadComponent: () => import('./pages/login/login.page').then( m => m.LoginPage)
+  },
+  {
+    path: 'loginscreen',
+    loadComponent: () => import('./pages/loginscreen/loginscreen.page').then( m => m.LoginscreenPage)
+  },
+  {
+    path: 'map',
     loadComponent: () => import('./pages/map-screen/map-screen.page').then(m => m.MapScreenPage)
   },
   {
@@ -24,5 +32,13 @@ export const routes: Routes = [
   {
     path: 'history',
     loadComponent: () => import('./pages/history/history.page').then( m => m.HistoryPage)
-  }
+  },  {
+    path: 'passwordreset',
+    loadComponent: () => import('./pages/passwordreset/passwordreset.page').then( m => m.PasswordresetPage)
+  },
+  {
+    path: 'singup',
+    loadComponent: () => import('./pages/singup/singup.page').then( m => m.SingupPage)
+  },
+
 ];
