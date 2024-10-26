@@ -1,7 +1,5 @@
-import { AfterViewInit, Component, ElementRef, inject, Renderer2, ViewChild } from '@angular/core';
-import { AlertController } from '@ionic/angular';
-import { NotificationService } from 'src/app/services/notification.service';
-import { TripService } from 'src/app/services/trip.service';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Geolocation } from '@capacitor/geolocation';
 
 declare var google: any;
 
@@ -13,6 +11,8 @@ declare var google: any;
 })
 export class MapComponent implements AfterViewInit {
   @ViewChild('map') mapElementRef!: ElementRef;
+  @Input() role: 'driver' | 'passenger' = 'driver'; // Default role is 'driver'
+  @Input() destination: { lat: number, lng: number } | null = null; // Destination for passenger
   center = { lat: -34.387, lng: 150.644 };
   map: any;
   userMarker: any;
@@ -20,10 +20,8 @@ export class MapComponent implements AfterViewInit {
   mapListener: any;
   markerListener: any;
   intersectionObserver: any;
-  private renderer = inject(Renderer2);
-  private alertController = inject(AlertController);
-  private notificationService = inject(NotificationService);
-  private tripService = inject(TripService);
+  directionsService: any;
+  directionsRenderer: any;
 
   constructor() { }
 
@@ -34,151 +32,106 @@ export class MapComponent implements AfterViewInit {
   async loadMap() {
     console.log('Loading map...');
     const { Map } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
-    const mapEl = this.mapElementRef.nativeElement;
-    console.log('Map element:', mapEl);
+    const mapOptions = {
+      center: this.center,
+      zoom: 18,
+      mapId: '977b8df018511dc6',
+      disableDefaultUI: true
+    };
 
-    // Obtener la ubicación del usuario
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          console.log('User location:', userLocation);
+    this.map = new Map(this.mapElementRef.nativeElement, mapOptions);
 
-          // Actualizar el centro del mapa con la ubicación del usuario
-          this.center = userLocation;
+    this.directionsService = new google.maps.DirectionsService();
+    this.directionsRenderer = new google.maps.DirectionsRenderer();
+    this.directionsRenderer.setMap(this.map);
 
-          const location = new google.maps.LatLng(this.center.lat, this.center.lng);
-          console.log('Location:', location);
+    await this.requestLocationPermissions();
+  }
 
-          this.map = new Map(mapEl, {
-            center: location,
-            zoom: 14,
-            mapId: "977b8df018511dc6",
-            disableDefaultUI: true,
-          });
-
-          // Agregar un marcador en la ubicación del usuario (marcador normal)
-          this.userMarker = new google.maps.Marker({
-            position: location,
-            map: this.map,
-            title: 'You are here'
-          });
-
-          // Crear un elemento HTML para el ícono del auto
-          const carIcon = document.createElement('div');
-          carIcon.innerHTML = '<img src="assets/car.png" style="width: 50px; height: 50px;">';
-
-          // Calcular la posición del auto cerca de la ubicación del usuario
-          const carLocation = new google.maps.LatLng(this.center.lat + 0.001, this.center.lng + 0.001);
-
-          // Agregar un marcador en la ubicación cercana con un ícono de auto
-          this.carMarker = new AdvancedMarkerElement({
-            position: carLocation,
-            map: this.map,
-            title: 'Car',
-            content: carIcon // Usar el elemento HTML como contenido del marcador
-          });
-
-          // Agregar un evento de clic al marcador del auto
-          this.carMarker.addListener('click', () => {
-            this.presentAlert();
-          });
-
-          console.log('Map initialized:', this.map);
-
-          this.renderer.addClass(mapEl, 'visible');
-        },
-        (error) => {
-          console.error('Error getting user location:', error);
-          // Si hay un error al obtener la ubicación del usuario, inicializar el mapa con el centro predeterminado
-          this.initializeMap(mapEl, AdvancedMarkerElement);
-        }
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
-      alert('Geolocation is not supported by this browser.');
-      // Si la geolocalización no es compatible, inicializar el mapa con el centro predeterminado
-      this.initializeMap(mapEl, AdvancedMarkerElement);
+  async requestLocationPermissions() {
+    try {
+      const hasPermission = await Geolocation.requestPermissions();
+      if (hasPermission.location === 'granted') {
+        this.getCurrentLocation();
+      } else {
+        alert('Location permission not granted');
+      }
+    } catch (error) {
+      console.error('Error requesting location permissions', error);
+      alert('Error requesting location permissions');
     }
   }
 
-  initializeMap(mapEl: HTMLElement, AdvancedMarkerElement: any) {
-    const location = new google.maps.LatLng(this.center.lat, this.center.lng);
-    console.log('Default location:', location);
-
-    this.map = new google.maps.Map(mapEl, {
-      center: location,
-      zoom: 14,
-      mapId: "977b8df018511dc6",
-      disableDefaultUI: true, // Desactivar todos los controles predeterminados
-    });
-
-    // Agregar un marcador en la ubicación predeterminada (marcador normal)
-    this.userMarker = new google.maps.Marker({
-      position: location,
-      map: this.map,
-      title: 'Default location'
-    });
-
-    console.log('Map initialized with default location:', this.map);
-
-    this.renderer.addClass(mapEl, 'visible');
-  }
-
-  async presentAlert() {
-    if (this.tripService.isTripRequested()) {
-      // Mostrar alerta si el viaje ya ha sido solicitado
-      const alert = await this.alertController.create({
-        header: 'Información del Conductor',
-        subHeader: 'Ya te encuentras en un viaje.',
-        buttons: ['Aceptar']
-      });
-      await alert.present();
-    } else {
-      // Mostrar alerta con opción de solicitar viaje
-      const alert = await this.alertController.create({
-        header: 'Información del Conductor',
-        subHeader: 'Detalles del vehículo',
-        buttons: [
-          {
-            text: 'Cancelar',
-            role: 'cancel',
-            cssClass: 'secondary',
-            handler: () => {
-              console.log('Cancel clicked');
-            }
-          },
-          {
-            text: 'Solicitar Viaje',
-            handler: () => {
-              console.log('Solicitar Viaje clicked');
-              this.notificationService.addNotification('Solicitud de viaje aceptada');
-              this.notificationService.addHistory('Viaje solicitado', 'Viaje en proceso.');
-              this.tripService.setTripRequested(true); // Marcar que el viaje ha sido solicitado
-            }
-          }
-        ]
-      });
-
-      // Presentar la alerta primero
-      await alert.present();
-
-      // Asignar el contenido HTML usando innerHTML después de que la alerta se haya presentado
-      const alertMessageElement = document.querySelector('ion-alert .alert-message');
-      if (alertMessageElement) {
-        alertMessageElement.innerHTML = `
-          <p><strong>Nombre del Conductor:</strong> Juan Pérez</p>
-          <p><strong>Patente:</strong> ABC123</p>
-          <p><strong>Modelo del Auto:</strong> Toyota Corolla</p>
-          <p><strong>Capacidad:</strong> 4 asientos</p>
-          <p><strong>Asientos Disponibles:</strong> 4 asientos</p>
-        `;
+  async getCurrentLocation() {
+    try {
+      const position = await Geolocation.getCurrentPosition({ timeout: 10000 });
+      this.center = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      this.map.setCenter(this.center);
+      this.addMarker(this.center, 'Driver Location');
+      // Call selectDestination after setting the current location
+      this.selectDestination();
+    } catch (error: any) {
+      if (error && typeof error.code === 'number') {
+        switch (error.code) {
+          case 1: // PERMISSION_DENIED
+            console.error('User denied the request for Geolocation.');
+            alert('Please enable location services to use this feature.');
+            break;
+          case 2: // POSITION_UNAVAILABLE
+            console.error('Location information is unavailable.');
+            alert('Location information is unavailable. Please try again later.');
+            break;
+          case 3: // TIMEOUT
+            console.error('The request to get user location timed out.');
+            alert('The request to get your location timed out. Please try again.');
+            break;
+          default:
+            console.error('An unknown error occurred.');
+            alert('An unknown error occurred while trying to fetch your location.');
+            break;
+        }
+      } else {
+        console.error('An unknown error occurred.', error);
+        alert('An unknown error occurred while trying to fetch your location.');
       }
     }
+  }
+
+  addMarker(position: { lat: number, lng: number }, title: string) {
+    new google.maps.Marker({
+      position,
+      map: this.map,
+      title
+    });
+  }
+
+  selectDestination() {
+    this.mapListener = this.map.addListener('click', (event: any) => {
+      const destination = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng()
+      };
+      this.addMarker(destination, 'Destination');
+      this.calculateAndDisplayRoute(this.center, destination);
+      google.maps.event.removeListener(this.mapListener);
+    });
+  }
+
+  calculateAndDisplayRoute(origin: { lat: number, lng: number }, destination: { lat: number, lng: number }) {
+    this.directionsService.route({
+      origin,
+      destination,
+      travelMode: google.maps.TravelMode.DRIVING
+    }, (response: any, status: any) => {
+      if (status === 'OK') {
+        this.directionsRenderer.setDirections(response);
+      } else {
+        console.error('Directions request failed due to ' + status);
+      }
+    })
   }
 }
