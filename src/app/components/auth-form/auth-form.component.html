@@ -1,0 +1,124 @@
+<div class="container animate__animated animate__fadeInUp">
+  <div class="content">
+    <ion-buttons>
+      <ion-back-button defaultHref="/auth/auth-screen" color="dark"></ion-back-button>
+    </ion-buttons>
+    <header>
+      <img src="assets/auth/TeLlevoAppLogo.png" [class.login]="currentForm === 'login' || currentForm === 'forgot-password'" [class.signup]="currentForm === 'signup'">
+      <!-- <h1>
+        @if (currentForm === 'login') {
+          Iniciar Sesión
+        } @else if (currentForm === 'signup') {
+          Regístrate
+        } @else {
+          Recupera tu contraseña
+        }
+      </h1> -->
+      @if (currentForm === 'forgot-password') {
+        <h4>Recupera tu contraseña aquí!</h4>
+      }
+    </header>
+    @if (currentForm === 'login') {
+      <form>
+        <ion-list [inset]="false">
+          <ion-item color="light" >
+            <ion-input label="Correo Electrónico" labelPlacement="floating" type="email"
+            formControlName="email" required></ion-input>
+          </ion-item>
+          <ion-item color="light">
+            <ion-input label="Contraseña" labelPlacement="floating" type="password"
+            formControlName="password" required></ion-input>
+          </ion-item>
+        </ion-list>
+        <div class="forgot-password">
+          <a routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
+        </div>
+        <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full">Iniciar Sesión</ion-button>
+      </form>
+      <ion-buttons>
+        <ion-button color="secondary" fill="outline" shape="round">
+          <img src="assets/auth/logo-google.svg" alt="GoogleLogo">
+          <span>Google</span>
+        </ion-button>
+        <ion-button color="secondary" fill="outline" shape="round">
+          <img src="assets/auth/logo-facebook.svg" alt="GoogleLogo">
+          <span>Facebook</span>
+        </ion-button>
+      </ion-buttons>
+    }
+    @if (currentForm === 'signup') {
+      <form [formGroup]="signupForm">
+        <ion-list [inset]="false" class="signup-list">
+          <div class="input-group">
+            <ion-item color="light">
+              <ion-input label="Nombre" labelPlacement="floating" type="text"
+              formControlName="firstName" required></ion-input>
+            </ion-item>
+            <ion-item color="light">
+              <ion-input label="Apellido" labelPlacement="floating" type="text"
+              formControlName="lastName" required></ion-input>
+            </ion-item>
+          </div>
+          <div class="input-group">
+            <ion-item color="light" >
+              <ion-input label="RUT" labelPlacement="floating" type="text"
+              formControlName="rut" required></ion-input>
+            </ion-item>
+            <ion-item color="light" >
+              <ion-input label="Correo Electrónico" labelPlacement="floating" type="email" 
+              formControlName="email" required></ion-input>
+            </ion-item>
+          </div>
+          <div class="input-group">
+            <ion-item color="light" >
+              <ion-input label="Contraseña" labelPlacement="floating" type="password"
+              formControlName="password" required></ion-input>
+            </ion-item>
+            <ion-item color="light">
+              <ion-input label="Confirmar Contraseña" labelPlacement="floating" type="password"
+              formControlName="confirmPass" required></ion-input>
+            </ion-item>
+          </div>
+          <ion-item color="light">
+            <ion-input label="Teléfono (+56 9)" labelPlacement="floating" type="number" 
+            formControlName="phone" required></ion-input>
+          </ion-item>
+          <ion-item color="light">
+            <ion-input label="Fecha Nacimiento" labelPlacement="floating" type="date"
+            formControlName="birthdate" required></ion-input>
+          </ion-item>
+          <div class="input-group">
+            <ion-item color="light">
+              <ion-checkbox labelPlacement="floating" (ionChange)="onCheckboxChange('passenger')"
+              formControlName="passenger">Pasajero</ion-checkbox>
+            </ion-item>
+            <ion-item color="light">
+              <ion-checkbox labelPlacement="floating" (ionChange)="onCheckboxChange('driver')"
+              formControlName="driver">Conductor</ion-checkbox>
+            </ion-item>
+          </div>
+        </ion-list>
+        <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full">Registrarse</ion-button>
+      </form>
+      <ion-buttons>
+        <ion-button color="secondary" fill="outline" shape="round">
+          <img src="assets/auth/logo-google.svg" alt="GoogleLogo">
+          <span>Google</span>
+        </ion-button>
+        <ion-button color="secondary" fill="outline" shape="round">
+          <img src="assets/auth/logo-facebook.svg" alt="GoogleLogo">
+          <span>Facebook</span>
+        </ion-button>
+      </ion-buttons>
+    }
+    @if (currentForm === 'forgot-password') {
+      <form>
+        <ion-item color="light" >
+          <ion-input label="Correo Electrónico" labelPlacement="floating" type="email"
+          formControlName="email" required></ion-input>
+        </ion-item>
+        <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full" style="margin-top: 20px;">Enviar Solicitud</ion-button>
+      </form>
+    }
+  </div>
+</div>

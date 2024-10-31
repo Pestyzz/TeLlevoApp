@@ -3,11 +3,30 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/login/login.page').then( m => m.LoginPage)
+    redirectTo: 'auth/auth-screen',
+    pathMatch: 'full'
   },
   {
-    path: 'loginscreen',
-    loadComponent: () => import('./pages/loginscreen/loginscreen.page').then( m => m.LoginscreenPage)
+    path: 'auth',
+    loadComponent: () => import('./pages/auth/auth.page').then(m => m.AuthPage),
+    children: [
+      {
+        path: 'auth-screen',
+        loadComponent: () => import('./pages/auth/auth-screen/auth-screen.page').then(m => m.AuthScreenPage)
+      },
+      {
+        path: 'login',
+        loadComponent: () => import('./pages/auth/login/login.page').then(m => m.LoginPage)
+      },
+      {
+        path: 'signup',
+        loadComponent: () => import('./pages/auth/signup/signup.page').then(m => m.SignupPage)
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./pages/auth/forgot-password/forgot-password.page').then(m => m.ForgotPasswordPage)
+      }
+    ]
   },
   {
     path: 'map',
@@ -15,30 +34,22 @@ export const routes: Routes = [
   },
   {
     path: 'notifications',
-    loadComponent: () => import('./pages/notifications/notifications.page').then( m => m.NotificationsPage)
+    loadComponent: () => import('./pages/notifications/notifications.page').then(m => m.NotificationsPage)
   },
   {
     path: 'profile',
-    loadComponent: () => import('./pages/profile/profile.page').then( m => m.ProfilePage)
+    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
   },
   {
     path: 'close-vehicles',
-    loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then( m => m.CloseVehiclesPage)
+    loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
   },
   {
     path: 'test',
-    loadComponent: () => import('./pages/test-map/test-map.page').then( m => m.TestMapPage)
+    loadComponent: () => import('./pages/test-map/test-map.page').then(m => m.TestMapPage)
   },
   {
     path: 'history',
-    loadComponent: () => import('./pages/history/history.page').then( m => m.HistoryPage)
-  },  {
-    path: 'passwordreset',
-    loadComponent: () => import('./pages/passwordreset/passwordreset.page').then( m => m.PasswordresetPage)
-  },
-  {
-    path: 'singup',
-    loadComponent: () => import('./pages/singup/singup.page').then( m => m.SingupPage)
-  },
-
+    loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage)
+  }
 ];

@@ -1,0 +1,150 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    padding: 20px;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
+    background: var(--ion-color-light);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+ion-buttons {
+    width: 100%;
+}
+
+ion-button span {
+    color: var(--ion-color-secondary);
+}
+
+ion-button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+ion-icon {
+    color: var(--ion-color-secondary);
+}
+
+header {
+    text-align: center;
+    color: var(--ion-color-secondary);
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+img.login {
+    max-width: 200px;
+}
+
+img.signup {
+    max-width: 160px;
+}
+
+header h1 {
+    margin: 12px 0 10px 0;
+}
+
+form {
+    width: 100%;
+}
+
+ion-list {
+    overflow-y: scroll;
+    overflow-x: visible;
+}
+
+ion-list.signup-list {
+    height: 40vh;
+}
+
+ion-list.list-md.list-inset {
+    background-color: var(--ion-color-light);
+    margin: 0;
+    padding-right: 16px;
+    padding-bottom: 0;
+}
+
+ion-list.list-md {
+    background-color: var(--ion-color-light);
+    padding-right: 16px;
+}
+
+.input-group {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
+.input-group ion-item {
+    flex: 1;
+    margin-right: 10px;
+}
+  
+.input-group ion-item:last-child {
+    margin-right: 0;
+}
+
+::ng-deep div.input-bottom.sc-ion-input-md {
+    padding-top: 0;
+    border-top: none;
+}
+
+ion-checkbox {
+    --checkbox-background: var(--ion-color-light);
+    --checkbox-background-checked: var(--ion-color-primary);
+    --checkmark-color: var(--ion-color-dark);
+    --size: 1.1em;
+}
+
+ion-checkbox::part(container) {
+    border-radius: 30%;
+    border: 2px solid var(--ion-color-secondary-tint);
+}
+
+ion-checkbox {
+    width: 100%;
+}
+
+.input-group ion-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-input {
+    width: 100%;
+}
+
+.forgot-password {
+    width: 100%;
+    text-align: center;
+    a {
+        text-decoration: none;
+    }
+    padding: 10px 0;
+}
+
+form ion-button {
+    margin-bottom: 15px;
+}
+
+ion-button {
+    width: 100%;
+}

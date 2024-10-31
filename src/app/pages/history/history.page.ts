@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NotificationService } from 'src/app/services/notification.service';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonButtons, IonButton, IonIcon, IonAvatar } from "@ionic/angular/standalone";
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -18,14 +17,10 @@ import { TabBarComponent } from "../../components/tab-bar/tab-bar.component";
 export class HistoryPage implements OnInit {
   history: { message: string, status: string }[] = [];
 
-  constructor(private notificationService: NotificationService) {
+  constructor() {
     addIcons({arrowBackOutline,time,carOutline});
   }
 
   ngOnInit() {
-    this.notificationService.history$.subscribe(history => {
-      this.history = history;
-      console.log('History:', this.history);
-    });
   }
 }

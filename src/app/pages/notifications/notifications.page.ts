@@ -6,7 +6,6 @@ import { addIcons } from 'ionicons';
 import { arrowBackOutline, notifications, map, person, notificationsOutline, chatbubbles, car } from 'ionicons/icons';
 import { RouterLink } from '@angular/router';
 import { TabBarComponent } from "../../components/tab-bar/tab-bar.component";
-import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-notifications',
@@ -19,13 +18,10 @@ import { NotificationService } from 'src/app/services/notification.service';
 export class NotificationsPage implements OnInit {
   notifications: string[] = [];
 
-  constructor(private notificationService: NotificationService) {
+  constructor() {
     addIcons({ arrowBackOutline, notifications, car, chatbubbles, map, person, notificationsOutline });
   }
 
   ngOnInit() {
-    this.notificationService.notifications$.subscribe(notifications => {
-      this.notifications = notifications;
-    });
   }
 }
