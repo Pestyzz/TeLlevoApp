@@ -31,6 +31,15 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'main',
+    loadComponent: () => import('./pages/main/main.page').then(m => m.MainPage),
+    // children: [
+    //   {
+
+    //   },
+    // ]
+  },
+  {
     path: 'map',
     loadComponent: () => import('./pages/map-screen/map-screen.page').then(m => m.MapScreenPage)
   },
@@ -53,5 +62,10 @@ export const routes: Routes = [
   {
     path: 'history',
     loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage)
+  },
+  {
+    path: 'main',
+    loadComponent: () => import('./pages/main/main.page').then( m => m.MainPage)
   }
+
 ];
