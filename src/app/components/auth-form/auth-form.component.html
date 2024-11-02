@@ -4,22 +4,15 @@
       <ion-back-button defaultHref="/auth/auth-screen" color="dark"></ion-back-button>
     </ion-buttons>
     <header>
-      <img src="assets/auth/TeLlevoAppLogo.png" [class.login]="currentForm === 'login' || currentForm === 'forgot-password'" [class.signup]="currentForm === 'signup'">
-      <!-- <h1>
-        @if (currentForm === 'login') {
-          Iniciar Sesión
-        } @else if (currentForm === 'signup') {
-          Regístrate
-        } @else {
-          Recupera tu contraseña
-        }
-      </h1> -->
+      <img src="assets/auth/TeLlevoAppLogo.png" 
+      [class.login]="currentForm === 'login' || currentForm === 'forgot-password'" 
+      [class.signup]="currentForm === 'signup'">
       @if (currentForm === 'forgot-password') {
         <h4>Recupera tu contraseña aquí!</h4>
       }
     </header>
     @if (currentForm === 'login') {
-      <form>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <ion-list [inset]="false">
           <ion-item color="light" >
             <ion-input label="Correo Electrónico" labelPlacement="floating" type="email"
@@ -33,7 +26,8 @@
         <div class="forgot-password">
           <a routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
         </div>
-        <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full">Iniciar Sesión</ion-button>
+        <ion-button type="submit" color="secondary" shape="round" fill="outline" 
+        expand="full">Iniciar Sesión</ion-button>
       </form>
       <ion-buttons>
         <ion-button color="secondary" fill="outline" shape="round">
@@ -47,7 +41,7 @@
       </ion-buttons>
     }
     @if (currentForm === 'signup') {
-      <form [formGroup]="signupForm">
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
         <ion-list [inset]="false" class="signup-list">
           <div class="input-group">
             <ion-item color="light">
@@ -61,7 +55,7 @@
           </div>
           <div class="input-group">
             <ion-item color="light" >
-              <ion-input label="RUT" labelPlacement="floating" type="text"
+              <ion-input label="RUT" labelPlacement="floating" placeholder="EJ: 1111111K" type="text"
               formControlName="rut" required></ion-input>
             </ion-item>
             <ion-item color="light" >
@@ -71,7 +65,7 @@
           </div>
           <div class="input-group">
             <ion-item color="light" >
-              <ion-input label="Contraseña" labelPlacement="floating" type="password"
+              <ion-input label="Contraseña" labelPlacement="floating" placeholder="Min 6 caracteres" type="password"
               formControlName="password" required></ion-input>
             </ion-item>
             <ion-item color="light">
@@ -112,12 +106,13 @@
       </ion-buttons>
     }
     @if (currentForm === 'forgot-password') {
-      <form>
-        <ion-item color="light" >
+      <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmit()">
+        <ion-item color="light">
           <ion-input label="Correo Electrónico" labelPlacement="floating" type="email"
           formControlName="email" required></ion-input>
         </ion-item>
-        <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full" style="margin-top: 20px;">Enviar Solicitud</ion-button>
+        <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full" 
+        style="margin-top: 20px;">Enviar Solicitud</ion-button>
       </form>
     }
   </div>

@@ -38,7 +38,22 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
-
 ion-toolbar {
     --background: var(--ion-color-secondary);
+}
+
+.custom-alert .alert-wrapper {
+    --background: var(--ion-color-danger-tint);
+}
+
+.custom-alert .alert-title {
+    color: var(--ion-color-light);
+}
+
+.custom-alert .alert-message {
+    color: var(--ion-color-light-shade);
+}
+
+.custom-alert .alert-button {
+    color: var(--ion-color-light);
 }
