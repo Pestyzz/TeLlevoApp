@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { AuthService } from './services/auth.service';
 import { doc, getDoc } from '@angular/fire/firestore';
 import { UserInterface } from './interfaces/user.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +12,7 @@ import { UserInterface } from './interfaces/user.interface';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent implements OnInit{
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     this.authService.user$.subscribe(async user => {
@@ -31,11 +32,20 @@ export class AppComponent implements OnInit{
             passenger: userData.passenger!,
             driver: userData.driver!
           });
+
+          if (userData.passenger) {
+            this.authService.setActiveProfile('passenger');
+          } else if (userData.driver) {
+            this.authService.setActiveProfile('driver');
+          }
+          // if (userData.passenger || userData.driver) {
+          //   this.router.navigate(['/main']);
+          // }
         }
       } else {
         this.authService.currentUserSig.set(null);
+        this.router.navigate(['/auth/auth-screen']);
       }
-      console.log(this.authService.currentUserSig());
     });
   }
 

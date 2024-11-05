@@ -1,16 +1,31 @@
 <ion-header>
   <ion-toolbar>
-    @if (profile === 'driver' && section === 'map') {
-      <ion-title class="ion-text-start">
-        <span class="title-part1">TeLlevo</span><span class="title-part2">APP</span>
-      </ion-title>
-      <ion-buttons slot="end">
-        <ion-button [routerLink]="['/']" shape="round">
-          <ion-icon name="log-out-outline" size="large"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    }
+    <ion-title class="ion-text-start">
+      <span class="title-part1">TeLlevo</span
+      ><span class="title-part2">APP</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button [routerLink]="['/']" shape="round">
+        <ion-icon name="log-out-outline" size="large"></ion-icon>
+      </ion-button>
+      @if (showDropdown()) {
+        <ion-item>
+          <ion-label>Cambiar Perfil</ion-label>
+          <ion-select [(ngModel)]="activeProfile" (ionChange)="changeProfile($event.detail.value)">
+            @if (isPassenger) {
+              <ion-select-option value="passenger">Pasajero</ion-select-option>
+            } @else if (isDriver) {
+              <ion-select-option value="passenger">Pasajero</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<ion-content>
+  <ion-router-outlet></ion-router-outlet>
+</ion-content>
 
 <app-tab-bar></app-tab-bar>

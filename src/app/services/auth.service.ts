@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
    updateProfile, user } from '@angular/fire/auth';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, updateDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { UserInterface } from '../interfaces/user.interface';
 
@@ -13,6 +13,7 @@ export class AuthService {
   firestore = inject(Firestore);
   user$ = user(this.firebaseAuth);
   currentUserSig = signal<UserInterface | null | undefined>(undefined);
+  activeProfileSig = signal<'passenger' | 'driver' | null>(null);
 
   login(email: string, password: string): Observable<void> {
     const promise = signInWithEmailAndPassword(this.firebaseAuth, email, password)
@@ -60,5 +61,14 @@ export class AuthService {
 
   logout() {
     signOut(this.firebaseAuth);
+  }
+
+  updateProfile(uid: string, profileData: Partial<UserInterface>): Promise<void> {
+    const userDocRef = doc(this.firestore, `user/${uid}`);
+    return updateDoc(userDocRef, profileData);
+  }
+
+  setActiveProfile(profile: 'passenger' | 'driver') {
+    this.activeProfileSig.set(profile);
   }
 }

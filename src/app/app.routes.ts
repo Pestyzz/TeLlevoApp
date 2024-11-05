@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-
+import { profileRedirect } from './guards/profileRedirect.guard';
 export const routes: Routes = [
   {
     path: '',
@@ -33,15 +33,13 @@ export const routes: Routes = [
   {
     path: 'main',
     loadComponent: () => import('./pages/main/main.page').then(m => m.MainPage),
-    // children: [
-    //   {
-
-    //   },
-    // ]
-  },
-  {
-    path: 'map',
-    loadComponent: () => import('./pages/map-screen/map-screen.page').then(m => m.MapScreenPage)
+    canActivate: [profileRedirect],
+    children: [
+      {
+        path: 'map',
+        loadComponent: () => import('./pages/main/map/map.page').then(m => m.MapPage)
+      },
+    ]
   },
   {
     path: 'notifications',
@@ -66,6 +64,11 @@ export const routes: Routes = [
   {
     path: 'main',
     loadComponent: () => import('./pages/main/main.page').then( m => m.MainPage)
+  },
+  {
+    path: 'map',
+    loadComponent: () => import('./pages/main/map/map.page').then( m => m.MapPage)
   }
+
 
 ];
