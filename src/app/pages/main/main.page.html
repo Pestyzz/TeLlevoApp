@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
     <ion-title class="ion-text-start">
-      <span class="title-part1">TeLlevo</span
-      ><span class="title-part2">APP</span>
+      <span class="title-part1">TeLlevo</span>
+      <span class="title-part2">APP</span>
     </ion-title>
     <ion-buttons slot="end">
       <ion-button [routerLink]="['/']" shape="round">
@@ -24,8 +24,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content color="tertiary">
   <ion-router-outlet></ion-router-outlet>
+  <app-tab-bar></app-tab-bar>
 </ion-content>
-
-<app-tab-bar></app-tab-bar>

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { IonItem, IonButton, IonLabel, IonInput, IonBackButton, IonButtons, IonList, IonItemGroup, 
+import { IonItem, IonButton, IonInput, IonBackButton, IonButtons, IonList, 
   IonCheckbox, AlertController } from "@ionic/angular/standalone";
 import { AuthService } from './../../services/auth.service';
 
@@ -11,8 +11,8 @@ import { AuthService } from './../../services/auth.service';
   templateUrl: './auth-form.component.html',
   styleUrls: ['./auth-form.component.scss'],
   standalone: true,
-  imports: [IonCheckbox, IonItemGroup, IonList, IonButtons, IonBackButton, IonInput, 
-    IonLabel, IonItem, IonButton, FormsModule, ReactiveFormsModule, RouterLink]
+  imports: [IonCheckbox, IonList, IonButtons, IonBackButton, IonInput, 
+    IonItem, IonButton, FormsModule, ReactiveFormsModule, RouterLink]
 })
 export class AuthFormComponent {
   @Input() currentForm: 'login' | 'signup' | 'forgot-password' = 'login';
@@ -85,7 +85,7 @@ export class AuthFormComponent {
 
       this.authService.login(rawForm.email, rawForm.password).subscribe({
         next: () => {
-          this.router.navigateByUrl('/map');
+          this.router.navigateByUrl('/main');
         },
         error: (error) => {
           console.error('Error logging in:', error);
@@ -122,7 +122,7 @@ export class AuthFormComponent {
 
       this.authService.signUp(rawForm.email, username, rawForm.password, additionalData).subscribe({
         next: () => {
-          this.router.navigateByUrl('/map');
+          this.router.navigateByUrl('/main');
         },
         error: (error) => {
           console.error('Error signin up:', error);

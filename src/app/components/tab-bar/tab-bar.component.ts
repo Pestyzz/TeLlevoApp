@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+  import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { car, chatbubbles, flame, logOutOutline, notifications, person, map, search, menu, refreshOutline, 

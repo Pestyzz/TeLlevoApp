@@ -37,7 +37,11 @@ export const routes: Routes = [
     children: [
       {
         path: 'map',
-        loadComponent: () => import('./pages/main/map/map.page').then(m => m.MapPage)
+        loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage)
       },
     ]
   },
@@ -46,29 +50,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/notifications/notifications.page').then(m => m.NotificationsPage)
   },
   {
-    path: 'profile',
-    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
-  },
-  {
     path: 'close-vehicles',
     loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
   },
   {
-    path: 'test',
-    loadComponent: () => import('./pages/test-map/test-map.page').then(m => m.TestMapPage)
-  },
-  {
     path: 'history',
     loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage)
-  },
-  {
-    path: 'main',
-    loadComponent: () => import('./pages/main/main.page').then( m => m.MainPage)
-  },
-  {
-    path: 'map',
-    loadComponent: () => import('./pages/main/map/map.page').then( m => m.MapPage)
   }
-
-
 ];

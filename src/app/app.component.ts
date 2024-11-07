@@ -33,23 +33,21 @@ export class AppComponent implements OnInit{
             driver: userData.driver!
           });
 
-          if (userData.passenger) {
+          if (userData.passenger && !userData.driver ) {
             this.authService.setActiveProfile('passenger');
-          } else if (userData.driver) {
+          } else if (userData.driver && !userData.passenger) {
+            this.authService.setActiveProfile('driver');
+          } else {
             this.authService.setActiveProfile('driver');
           }
-          // if (userData.passenger || userData.driver) {
-          //   this.router.navigate(['/main']);
-          // }
+          if (userData.passenger || userData.driver) {
+            this.router.navigate(['/main']);
+          }
         }
       } else {
         this.authService.currentUserSig.set(null);
         this.router.navigate(['/auth/auth-screen']);
       }
     });
-  }
-
-  logout() {
-    this.authService.logout();
   }
 }

@@ -1,20 +1,3 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button [routerLink]="['/map']" shape="round" class="back-button">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        Volver
-      </ion-button>
-    </ion-buttons>
-    <ion-title class="ion-text-end">
-      <div class="title-content">
-        <ion-icon name="person" color="primary"></ion-icon>
-        <span>Perfil</span>
-      </div>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content color="tertiary">
   <div class="ion-padding profile-container">
     <ion-avatar class="profile-avatar">
@@ -36,7 +19,6 @@
       </ion-item>
     </ion-list>
     <ion-button expand="full" color="primary" shape="round" class="edit-button" (click)="openEditModal()">Editar Perfil</ion-button>
+    <ion-button expand="full" color="danger" shape="round" (click)="logout()">Cerrar Sesión</ion-button>
   </div>
 </ion-content>
-
-<app-tab-bar></app-tab-bar>
