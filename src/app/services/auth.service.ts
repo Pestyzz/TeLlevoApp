@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
    updateProfile, user } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { UserInterface } from '../interfaces/user.interface';
 
@@ -61,6 +61,19 @@ export class AuthService {
 
   logout() {
     signOut(this.firebaseAuth);
+  }
+
+  getUserData(uid: string): Observable<UserInterface> {
+    const userDocRef = doc(this.firestore, `user/${uid}`);
+    const promise = getDoc(userDocRef).then(docSnap => {
+      if (docSnap.exists()) {
+        return docSnap.data() as UserInterface;
+      } else {
+        throw new Error('User does not exist');
+      }
+    });
+
+    return from(promise);
   }
 
   updateProfile(uid: string, profileData: Partial<UserInterface>): Promise<void> {

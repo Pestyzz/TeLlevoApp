@@ -3,22 +3,22 @@
     <ion-avatar class="profile-avatar">
       <img src="https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_25.png" alt="Profile Picture">
     </ion-avatar>
-    <h2 class="profile-name">{{ userName }}</h2>
+    <h2 class="profile-name">{{ user?.firstName }} {{  user?.lastName }}</h2>
     <ion-list mode="md" class="ion-padding">
       <ion-item>
         <ion-label>Email:</ion-label>
-        <ion-text>{{ userEmail }}</ion-text>
+        <ion-text>{{ user?.email }}</ion-text>
       </ion-item>
       <ion-item>
         <ion-label>Teléfono:</ion-label>
-        <ion-text>+ {{ userPhone }}</ion-text>
+        <ion-text>+56 9 {{ user?.phone }}</ion-text>
       </ion-item>
       <ion-item>
         <ion-label>Rol</ion-label>
         <ion-text>Estudiante</ion-text>
       </ion-item>
     </ion-list>
-    <ion-button expand="full" color="primary" shape="round" class="edit-button" (click)="openEditModal()">Editar Perfil</ion-button>
-    <ion-button expand="full" color="danger" shape="round" (click)="logout()">Cerrar Sesión</ion-button>
+    <ion-button expand="full" color="primary" shape="round" class="edit-button" (click)="openEditAlert()">Editar Perfil</ion-button>
+    <ion-button expand="full" color="danger" shape="round" (click)="confirmLogout()">Cerrar Sesión</ion-button>
   </div>
 </ion-content>

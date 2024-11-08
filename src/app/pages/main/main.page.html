@@ -13,7 +13,7 @@
           <ion-label>Cambiar Perfil</ion-label>
           <ion-select [(ngModel)]="activeProfile" (ionChange)="changeProfile($event.detail.value)">
             @if (isPassenger) {
-              <ion-select-option value="passenger">Pasajero</ion-select-option>
+              <ion-select-option value="driver">Conductor</ion-select-option>
             } @else if (isDriver) {
               <ion-select-option value="passenger">Pasajero</ion-select-option>
             }
