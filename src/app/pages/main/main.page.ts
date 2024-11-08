@@ -5,11 +5,12 @@ import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons,
   IonButton, IonIcon, IonItem, IonLabel, IonSelect, 
   IonSelectOption, IonRouterOutlet, IonFooter, IonTabs, IonFab, IonFabButton, IonTabBar, IonTab } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { car, logOutOutline, map, notifications, person, refreshOutline, stopwatchOutline, time } from 'ionicons/icons';
 import { TabBarComponent } from "../../components/tab-bar/tab-bar.component";
 import { MapComponent } from "../../components/map/map.component";
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-main',
@@ -24,6 +25,9 @@ export class MainPage implements OnInit {
   activeProfile: 'passenger' | 'driver' | null = null;
   isPassenger = false;
   isDriver = false;
+
+  showBackButton = false;
+  titleAlignment = 'ion-text-start';
 
   constructor(private authService: AuthService, private router: Router) { 
     addIcons({logOutOutline, car, notifications, time, map, person,
@@ -50,6 +54,26 @@ export class MainPage implements OnInit {
         }, 600);
       }
     });
+
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe((event: NavigationEnd) => {
+      const url = event.urlAfterRedirects;
+      if (url !== '/main/maps' && url !== '/main/rides') {
+        this.showBackButton = true;
+        this.titleAlignment = 'ion-text-end';
+      } else {
+        this.showBackButton = true;
+        this.titleAlignment = 'ion-text-start';
+      }
+    });
+  }
+
+  goBack() {
+    if (this.activeProfile === 'driver') {
+      this.router.navigate(['/main/maps']);
+    } else {
+      this.router.navigate(['/maps/rides']);
+    }
   }
 
   changeProfile(profile: 'passenger' | 'driver') {

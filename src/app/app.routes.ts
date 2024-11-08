@@ -43,18 +43,20 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage)
       },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./pages/main/notifications/notifications.page').then(m => m.NotificationsPage)
+      },
+      {
+        path: 'history',
+        loadComponent: () => import('./pages/main/history/history.page').then(m => m.HistoryPage)
+      },
+
     ]
   },
-  {
-    path: 'notifications',
-    loadComponent: () => import('./pages/notifications/notifications.page').then(m => m.NotificationsPage)
-  },
-  {
-    path: 'close-vehicles',
-    loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
-  },
-  {
-    path: 'history',
-    loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage)
-  }
+  // {
+  //   path: 'close-vehicles',
+  //   loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
+  // },
+
 ];

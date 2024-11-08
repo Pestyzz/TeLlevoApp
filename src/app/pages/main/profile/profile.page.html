@@ -3,10 +3,12 @@
     <ion-avatar class="profile-avatar">
       <img src="https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_25.png" alt="Profile Picture">
     </ion-avatar>
-    <h2 class="profile-name">{{ user?.firstName }} {{  user?.lastName }}</h2>
-    <ion-list mode="md" class="ion-padding">
+    <ion-list  class="ion-padding">
+      <header>
+        <h2 class="profile-name ion-text-center">{{ user?.firstName }} {{ user?.lastName }}</h2>
+      </header>
       <ion-item>
-        <ion-label>Email:</ion-label>
+        <ion-label>Correo Electrónico:</ion-label>
         <ion-text>{{ user?.email }}</ion-text>
       </ion-item>
       <ion-item>
@@ -14,11 +16,11 @@
         <ion-text>+56 9 {{ user?.phone }}</ion-text>
       </ion-item>
       <ion-item>
-        <ion-label>Rol</ion-label>
-        <ion-text>Estudiante</ion-text>
+        <ion-label>Rut:</ion-label>
+        <ion-text>{{ (user?.rut || '') | rutFormat }}</ion-text>
       </ion-item>
     </ion-list>
     <ion-button expand="full" color="primary" shape="round" class="edit-button" (click)="openEditAlert()">Editar Perfil</ion-button>
-    <ion-button expand="full" color="danger" shape="round" (click)="confirmLogout()">Cerrar Sesión</ion-button>
+    <ion-button expand="full" color="danger" shape="round" class="edit-button" (click)="confirmLogout()">Cerrar Sesión</ion-button>
   </div>
 </ion-content>

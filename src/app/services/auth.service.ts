@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
-   updateProfile, user } from '@angular/fire/auth';
+   updateProfile, user, 
+   updatePassword} from '@angular/fire/auth';
 import { Firestore, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { UserInterface } from '../interfaces/user.interface';
@@ -36,7 +37,7 @@ export class AuthService {
           rut: additionalData.rut,
           email: response.user.email,
           phone: additionalData.phone,
-          birthdate: additionalData.birthdate,
+          // birthdate: additionalData.birthdate,
           passenger: additionalData.passenger,
           driver: additionalData.driver
         });
@@ -79,6 +80,15 @@ export class AuthService {
   updateProfile(uid: string, profileData: Partial<UserInterface>): Promise<void> {
     const userDocRef = doc(this.firestore, `user/${uid}`);
     return updateDoc(userDocRef, profileData);
+  }
+
+  updatePassword(newPassword: string): Promise<void> {
+    const user = this.firebaseAuth.currentUser;
+    if (user) {
+      return updatePassword(user, newPassword);
+    } else {
+      return Promise.reject('No user logged in');
+    }
   }
 
   setActiveProfile(profile: 'passenger' | 'driver') {

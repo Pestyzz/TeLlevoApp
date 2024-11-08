@@ -7,6 +7,7 @@ import { addIcons } from 'ionicons';
 import { arrowBackOutline, person } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserInterface } from 'src/app/interfaces/user.interface';
+import { RutFormatPipe } from 'src/app/pipes/rut-format.pipe';
 
 @Component({
   selector: 'app-profile',
@@ -14,7 +15,7 @@ import { UserInterface } from 'src/app/interfaces/user.interface';
   styleUrls: ['./profile.page.scss'],
   standalone: true,
   imports: [IonButton, IonText, IonLabel, IonItem, 
-    IonList, IonAvatar, IonContent, CommonModule, FormsModule]
+    IonList, IonAvatar, IonContent, CommonModule, FormsModule, RutFormatPipe]
 })
 export class ProfilePage implements OnInit {
   user: UserInterface | null = null;
@@ -31,7 +32,7 @@ export class ProfilePage implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPass: ['', [Validators.required, Validators.minLength(6)]],
       phone: ['', [Validators.required, Validators.min(111111111), Validators.max(999999999)]],
-      birthdate: ['', Validators.required],
+      // birthdate: ['', Validators.required],
     });
   }
 
@@ -40,6 +41,7 @@ export class ProfilePage implements OnInit {
       if (user) {
         this.authService.getUserData(user.uid).subscribe(userData => {
           this.user = userData;
+          this.profileForm.patchValue(userData);
         });
       }
     });
@@ -53,12 +55,15 @@ export class ProfilePage implements OnInit {
         rut: userData.rut,
         email: userData.email,
         phone: userData.phone,
-        birthdate: new Date(userData.birthdate)
+        // birthdate: new Date(userData.birthdate)
       };
 
       this.authService.user$.subscribe(user => {
         if (user) {
-          this.authService.updateProfile(user.uid, updatedData);
+          this.authService.updateProfile(user.uid, updatedData).then(() => {
+            this.user = { ...this.user, ...updatedData } as UserInterface;
+            this.profileForm.patchValue(updatedData);
+          });
         }
       });
     }
@@ -86,10 +91,10 @@ export class ProfilePage implements OnInit {
         { name: 'lastName', type: 'text', placeholder: 'Apellido', value: this.profileForm.get('lastName')?.value },
         { name: 'rut', type: 'text', placeholder: 'EJ: 1234456K', value: this.profileForm.get('rut')?.value },
         { name: 'email', type: 'email', placeholder: 'EJ: ejemplo@gmail.com', value: this.profileForm.get('email')?.value },
-        { name: 'password', type: 'text', placeholder: 'Contraseña (Min 6 caracteres)', value: this.profileForm.get('password')?.value },
-        { name: 'confirmPass', type: 'text', placeholder: 'Confirmar Contraseña', value: this.profileForm.get('confirmPass')?.value },
+        { name: 'password', type: 'password', placeholder: 'Contraseña (Min 6 caracteres)', value: this.profileForm.get('password')?.value },
+        { name: 'confirmPass', type: 'password', placeholder: 'Confirmar Contraseña', value: this.profileForm.get('confirmPass')?.value },
         { name: 'phone', type: 'number', placeholder: 'Teléfono (+56 9)', value: this.profileForm.get('phone')?.value },
-        { name: 'birthdate', type: 'date', value: this.profileForm.get('birthdate')?.value }
+        // { name: 'birthdate', type: 'date', value: this.profileForm.get('birthdate')?.value }
       ],
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
