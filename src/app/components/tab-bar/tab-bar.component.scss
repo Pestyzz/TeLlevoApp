@@ -25,21 +25,21 @@ ion-tabs {
     }
     ion-tab-button {
       --background: var(--ion-color-secondary);
-      border: none; /* Elimina cualquier borde */
-      margin: 0; /* Elimina el margen */
-      padding: 0; /* Elimina el padding */
+      border: none;
+      margin: 0;
+      padding: 0;
     }
     ion-tab-button.notifications,
+    ion-tab-button.history,
     ion-tab-button.messages,
-    ion-tab-button.map,
     ion-tab-button.profile {
-      flex: 1; /* Asegura que los botones ocupen el mismo espacio */
+      flex: 1;
     }
-    ion-tab-button.messages {
+    ion-tab-button.history {
       margin-right: 0px;
       border-top-right-radius: 18px;
     }
-    ion-tab-button.map {
+    ion-tab-button.messages {
       margin-left: 0px;
       border-top-left-radius: 18px;
     }

@@ -21,7 +21,7 @@ export class AppComponent implements OnInit{
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data() as UserInterface;
-          this.authService.currentUserSig.set({
+          this.authService.setCurrentUser({
             firstName: userData.firstName!,
             lastName: userData.lastName!,
             username: user.displayName!,
@@ -33,19 +33,27 @@ export class AppComponent implements OnInit{
             driver: userData.driver!
           });
 
-          if (userData.passenger && !userData.driver ) {
-            this.authService.setActiveProfile('passenger');
-          } else if (userData.driver && !userData.passenger) {
-            this.authService.setActiveProfile('driver');
-          } else {
-            this.authService.setActiveProfile('driver');
+          let activeProfile = this.authService.getActiveProfile();
+          if (!activeProfile) {
+            if (userData.passenger && !userData.driver) {
+              activeProfile = 'passenger';
+            } else if (userData.driver && !userData.passenger) {
+              activeProfile = 'driver';
+            } else {
+              activeProfile = 'driver';
+            }
+            this.authService.setActiveProfile(activeProfile);
           }
-          if (userData.passenger || userData.driver) {
-            this.router.navigate(['/main']);
+
+          if (activeProfile === 'passenger') {
+            this.router.navigate(['/main/rides']);
+          } else if (activeProfile === 'driver') {
+            this.router.navigate(['/main/map']);
           }
         }
       } else {
-        this.authService.currentUserSig.set(null);
+        this.authService.clearCurrentUser();
+        this.authService.clearActiveProfile();
         this.router.navigate(['/auth/auth-screen']);
       }
     });

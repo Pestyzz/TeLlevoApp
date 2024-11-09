@@ -37,14 +37,21 @@ export class ProfilePage implements OnInit {
   }
 
   ngOnInit() {
-    this.authService.user$.subscribe(user => {
-      if (user) {
-        this.authService.getUserData(user.uid).subscribe(userData => {
-          this.user = userData;
-          this.profileForm.patchValue(userData);
-        });
-      }
-    });
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      const userData = JSON.parse(storedUser) as UserInterface;
+      this.user = userData;
+      this.profileForm.patchValue(userData);
+    } else {
+      this.authService.user$.subscribe(user => {
+        if (user) {
+          this.authService.getUserData(user.uid).subscribe(userData => {
+            this.user = userData;
+            this.profileForm.patchValue(userData);
+          });
+        }
+      });
+    }
   }
 
   updateProfile(userData: any) {
@@ -63,6 +70,7 @@ export class ProfilePage implements OnInit {
           this.authService.updateProfile(user.uid, updatedData).then(() => {
             this.user = { ...this.user, ...updatedData } as UserInterface;
             this.profileForm.patchValue(updatedData);
+            localStorage.setItem('currentUser', JSON.stringify(this.user));
           });
         }
       });

@@ -1,5 +1,6 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { OnInit, Component, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { AuthService } from 'src/app/services/auth.service';
 
 declare var google: any;
 
@@ -7,31 +8,41 @@ declare var google: any;
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
 })
-export class MapComponent implements AfterViewInit {
+export class MapComponent implements OnInit {
   @ViewChild('map') mapElementRef!: ElementRef;
-  @Input() role: 'driver' | 'passenger' = 'driver'; // Default role is 'driver'
-  @Input() destination: { lat: number, lng: number } | null = null; // Destination for passenger
-  center = { lat: -34.387, lng: 150.644 };
   map: any;
-  userMarker: any;
-  carMarker: any;
   mapListener: any;
-  markerListener: any;
-  intersectionObserver: any;
+  currentMarker: any;
+  originMarker: any;
+  destinationMarker: any;
   directionsService: any;
   directionsRenderer: any;
+  center: { lat: number, lng: number } = { lat: 0, lng: 0 };
+  activeProfile: 'passenger' | 'driver' | null;
 
-  constructor() { }
+  constructor(private authService: AuthService) {
+    this.activeProfile = this.authService.getActiveProfile();
+   }
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.loadMap();
   }
 
   async loadMap() {
     console.log('Loading map...');
+
+    const position = await Geolocation.getCurrentPosition();
+    this.center = { 
+      lat: position.coords.latitude, 
+      lng: position.coords.longitude 
+    };
+
     const { Map } = await google.maps.importLibrary("maps");
+    const { Autocomplete } = await google.maps.importLibrary("places");
+    
 
     const mapOptions = {
       center: this.center,
@@ -41,83 +52,60 @@ export class MapComponent implements AfterViewInit {
     };
 
     this.map = new Map(this.mapElementRef.nativeElement, mapOptions);
-
     this.directionsService = new google.maps.DirectionsService();
-    this.directionsRenderer = new google.maps.DirectionsRenderer();
+    this.directionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true
+    });
     this.directionsRenderer.setMap(this.map);
 
-    await this.requestLocationPermissions();
-  }
-
-  async requestLocationPermissions() {
-    try {
-      const hasPermission = await Geolocation.requestPermissions();
-      if (hasPermission.location === 'granted') {
-        this.getCurrentLocation();
-      } else {
-        alert('Location permission not granted');
-      }
-    } catch (error) {
-      console.error('Error requesting location permissions', error);
-      alert('Error requesting location permissions');
+    if (this.activeProfile === 'driver') {
+      this.setDriverMode();
+    } else if (this.activeProfile === 'passenger') {
+      this.setPassengerMode();
     }
   }
 
-  async getCurrentLocation() {
-    try {
-      const position = await Geolocation.getCurrentPosition({ timeout: 10000 });
-      this.center = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
+  setDriverMode() {
+    const input = document.getElementById('pac-input') as HTMLInputElement;
+    const autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.bindTo('bounds', this.map);
+
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry || !place.geometry.location) {
+        console.error('No details available for input: ' + place.name);
+        return;
+      }
+
+      const destination = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
       };
-      this.map.setCenter(this.center);
-      this.addMarker(this.center, 'Driver Location');
-      // Call selectDestination after setting the current location
-      this.selectDestination();
-    } catch (error: any) {
-      if (error && typeof error.code === 'number') {
-        switch (error.code) {
-          case 1: // PERMISSION_DENIED
-            console.error('User denied the request for Geolocation.');
-            alert('Please enable location services to use this feature.');
-            break;
-          case 2: // POSITION_UNAVAILABLE
-            console.error('Location information is unavailable.');
-            alert('Location information is unavailable. Please try again later.');
-            break;
-          case 3: // TIMEOUT
-            console.error('The request to get user location timed out.');
-            alert('The request to get your location timed out. Please try again.');
-            break;
-          default:
-            console.error('An unknown error occurred.');
-            alert('An unknown error occurred while trying to fetch your location.');
-            break;
-        }
-      } else {
-        console.error('An unknown error occurred.', error);
-        alert('An unknown error occurred while trying to fetch your location.');
-      }
-    }
-  }
 
-  addMarker(position: { lat: number, lng: number }, title: string) {
-    new google.maps.Marker({
-      position,
-      map: this.map,
-      title
+      this.calculateAndDisplayRoute(this.center, destination);
     });
   }
 
-  selectDestination() {
-    this.mapListener = this.map.addListener('click', (event: any) => {
-      const destination = {
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng()
-      };
-      this.addMarker(destination, 'Destination');
-      this.calculateAndDisplayRoute(this.center, destination);
-      google.maps.event.removeListener(this.mapListener);
+  setPassengerMode() {
+    // Lógica específica para el Pasajero
+    // Aquí se puede implementar la lógica para mostrar la lista de viajes
+  }
+
+  addCustomMarker(position: { lat: number, lng: number }, title: string, iconUrl: string) {
+    const { AdvancedMarkerElement } = google.maps.marker;
+
+    const markerContent = document.createElement('div');
+    markerContent.innerHTML = `
+      <div style="background-color: white; border: 1px solid black; padding: 5px; border-radius: 50%;">
+        <img src="${iconUrl}" style="width: 50px; height: 50px;">
+      </div>
+    `;
+
+    return new AdvancedMarkerElement({
+      position,
+      map: this.map,
+      title,
+      content: markerContent
     });
   }
 
@@ -129,9 +117,19 @@ export class MapComponent implements AfterViewInit {
     }, (response: any, status: any) => {
       if (status === 'OK') {
         this.directionsRenderer.setDirections(response);
+
+        if (this.originMarker) {
+          this.originMarker.map = null;
+        }
+        if (this.destinationMarker) {
+          this.destinationMarker.map = null;
+        }
+
+        this.originMarker = this.addCustomMarker(origin, 'Origin', 'URL_DE_TU_IMAGEN_ORIGEN');
+        this.destinationMarker = this.addCustomMarker(destination, 'Destination', 'URL_DE_TU_IMAGEN_DESTINO');
       } else {
         console.error('Directions request failed due to ' + status);
       }
-    })
+    });
   }
 }

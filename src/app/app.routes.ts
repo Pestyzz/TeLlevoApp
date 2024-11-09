@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { profileRedirect } from './guards/profileRedirect.guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -33,16 +33,7 @@ export const routes: Routes = [
   {
     path: 'main',
     loadComponent: () => import('./pages/main/main.page').then(m => m.MainPage),
-    canActivate: [profileRedirect],
     children: [
-      {
-        path: 'map',
-        loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage)
-      },
-      {
-        path: 'profile',
-        loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage)
-      },
       {
         path: 'notifications',
         loadComponent: () => import('./pages/main/notifications/notifications.page').then(m => m.NotificationsPage)
@@ -51,9 +42,22 @@ export const routes: Routes = [
         path: 'history',
         loadComponent: () => import('./pages/main/history/history.page').then(m => m.HistoryPage)
       },
-
+      {
+        path: 'map',
+        loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage)
+      },
+      {
+        path: 'messages',
+        loadComponent: () => import('./pages/main/messages/messages.page').then( m => m.MessagesPage)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage)
+      }
     ]
-  },
+  }
+
+
   // {
   //   path: 'close-vehicles',
   //   loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)

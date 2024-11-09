@@ -1,7 +1,7 @@
 <ion-tabs>
   <ion-fab vertical="bottom" horizontal="center" translucent="true">
-    <ion-fab-button color="primary">
-      <ion-icon name="car"></ion-icon>
+    <ion-fab-button color="primary" [routerLink]="[fabButtonLink]">
+      <ion-icon [name]="fabButtonIcon"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
@@ -19,8 +19,8 @@
       </path>
     </svg>
 
-    <ion-tab-button tab="" class="map" [routerLink]="['/main/map']">
-      <ion-icon name="map"></ion-icon>
+    <ion-tab-button tab="messages" class="messages" [routerLink]="['/main/map']">
+      <ion-icon name="chatbubbles"></ion-icon>
     </ion-tab-button>
 
     <ion-tab-button tab="profile" class="profile" [routerLink]="['/main/profile']">

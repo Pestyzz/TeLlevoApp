@@ -1,21 +1,14 @@
 <ion-header>
   <ion-toolbar>
-    @if (showBackButton) {
-      <ion-buttons>
-        <ion-button (click)="goBack()">
-          <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    }
-    <ion-title [ngClass]="titleAlignment">
+    <ion-title class="ion-text-start">
       <span class="title-part1">TeLlevo</span>
       <span class="title-part2">APP</span>
     </ion-title>
     <ion-buttons slot="end">
       @if (showDropdown()) {
         <ion-item>
-          <ion-label>Cambiar Perfil</ion-label>
-          <ion-select [(ngModel)]="activeProfile" (ionChange)="changeProfile($event.detail.value)">
+          <ion-select label="Cambiar Perfil" labelPlacement="fixed" [(ngModel)]="activeProfile" 
+          (ionChange)="changeProfile($event.detail.value)">
             @if (isPassenger) {
               <ion-select-option value="driver">Conductor</ion-select-option>
             } @else if (isDriver) {

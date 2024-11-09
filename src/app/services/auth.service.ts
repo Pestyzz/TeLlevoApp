@@ -16,6 +16,18 @@ export class AuthService {
   currentUserSig = signal<UserInterface | null | undefined>(undefined);
   activeProfileSig = signal<'passenger' | 'driver' | null>(null);
 
+  constructor() {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      this.currentUserSig.set(JSON.parse(storedUser));
+    }
+
+    const storedProfile = localStorage.getItem('activeProfile');
+    if (storedProfile) {
+      this.activeProfileSig.set(storedProfile as 'passenger' | 'driver');
+    }
+  }
+
   login(email: string, password: string): Observable<void> {
     const promise = signInWithEmailAndPassword(this.firebaseAuth, email, password)
     .then(() => {})
@@ -93,5 +105,25 @@ export class AuthService {
 
   setActiveProfile(profile: 'passenger' | 'driver') {
     this.activeProfileSig.set(profile);
+    localStorage.setItem('activeProfile', profile);
+  }
+
+  getActiveProfile(): 'passenger' | 'driver' | null {
+    return localStorage.getItem('activeProfile') as 'passenger' | 'driver' | null;
+  }
+
+  clearActiveProfile() {
+    this.activeProfileSig.set(null);
+    localStorage.removeItem('activeProfile');
+  }
+
+  setCurrentUser(user: UserInterface) {
+    this.currentUserSig.set(user);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+
+  clearCurrentUser() {
+    this.currentUserSig.set(null);
+    localStorage.removeItem('currentUser');
   }
 }
