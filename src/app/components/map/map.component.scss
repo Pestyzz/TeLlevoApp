@@ -1,3 +1,4 @@
+//Map styles
 #map {
   position: unset;
   height: 100%;
@@ -19,6 +20,7 @@
   display: none;
 }
 
+//Search styles
 .controls {
   font-family: var(--nexa-extra-light);
   background-color: white;
@@ -66,4 +68,43 @@
 
 .pac-item-query {
   font-weight: bold;
+}
+
+//Trip styles
+
+.trip-info-container {
+  position: absolute;
+  bottom: 60px; /* Ajusta según la altura del tab */
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 10px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.trip-info {
+  margin-bottom: 10px;
+}
+
+.trip-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.trip-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.trip-actions button:first-child {
+  background-color: #ff6c70;
+  color: white;
+}
+
+.trip-actions button:last-child {
+  background-color: #4caf50;
+  color: white;
 }

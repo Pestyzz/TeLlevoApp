@@ -4,4 +4,22 @@
         <input id="pac-input" class="controls" type="text" placeholder="Introduce el destino del viaje.">
         <button class="clear-button">X</button>
     </div>
+    @if (tripInfo) {
+        <div class="trip-info-container">
+            <div class="trip-info">
+                <p>Origen: {{ tripInfo.origin.name }}</p>
+                <p>Destino: {{ tripInfo.destination.name }}</p>
+                <p>Kilómetros: {{ tripInfo.distance }}</p>
+                <p>Tiempo estimado: {{ tripInfo.duration }}</p>
+            </div>
+            <div class="trip-actions">
+                <button (click)="cancelTrip()">Cancelar</button>
+                @if (!tripPublished) {
+                    <button (click)="publishTrip()">Publicar viaje</button>
+                } @else {
+                    <button (click)="startTrip()">Comenzar viaje</button>
+                }
+            </div>
+        </div>
+    }
 }
