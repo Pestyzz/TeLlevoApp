@@ -79,25 +79,31 @@ export class MapComponent implements OnInit {
     }
   }
 
-  setDriverMode(Autocomplete: any) {
+  async setDriverMode(Autocomplete: any) {
     const input = document.getElementById('pac-input') as HTMLInputElement;
     const autocomplete = new Autocomplete(input);
     autocomplete.bindTo('bounds', this.map);
 
-    autocomplete.addListener('place_changed', () => {
+    autocomplete.addListener('place_changed', async () => {
       const place = autocomplete.getPlace();
       if (!place.geometry || !place.geometry.location) {
         console.error('No details available for input: ' + place.name);
         return;
       }
 
+      const position = await Geolocation.getCurrentPosition();
+      const origin = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+
       const destination = {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
       };
 
-      this.calculateRoute(destination);
-      this.calculateAndDisplayRoute(this.center, destination);
+      this.calculateRoute(origin, destination);
+      this.calculateAndDisplayRoute(origin, destination);
     });
   }
 
@@ -106,8 +112,7 @@ export class MapComponent implements OnInit {
     // Aquí se puede implementar la lógica para mostrar la lista de viajes
   }
 
-  calculateRoute(destination: any) {
-    const origin = this.map.getCenter();
+  calculateRoute(origin: any, destination: any) {
     this.directionsService.route(
       {
         origin: origin,
@@ -123,7 +128,7 @@ export class MapComponent implements OnInit {
             vehicle: this.authService.vehicleSig(),
             origin: {
               name: route.start_address,
-              coords: origin.toJSON()
+              coords: origin
             },
             destination: {
               name: route.end_address,
@@ -179,9 +184,14 @@ export class MapComponent implements OnInit {
     this.tripPublished = false;
     this.directionsRenderer.set('directions', null);
     localStorage.removeItem('currentTrip');
+    this.originMarker.setMap(null);
+    this.originMarker = null;
+    this.destinationMarker.setMap(null);
+    this.destinationMarker = null;
+    
     this.cdr.detectChanges();
   }
-  
+
   calculateAndDisplayRoute(origin: { lat: number, lng: number }, destination: { lat: number, lng: number }) {
     this.directionsService.route({
       origin,
