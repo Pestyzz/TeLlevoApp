@@ -17,4 +17,6 @@ export interface TripInterface {
     };
     distance: string;
     duration: string;
+    price: number;
+    status: 'published' | 'started' | 'completed';
 }

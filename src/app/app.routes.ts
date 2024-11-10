@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { tripGuard } from './guards/trip.guard';
 
 export const routes: Routes = [
   {
@@ -36,28 +37,30 @@ export const routes: Routes = [
     children: [
       {
         path: 'notifications',
-        loadComponent: () => import('./pages/main/notifications/notifications.page').then(m => m.NotificationsPage)
+        loadComponent: () => import('./pages/main/notifications/notifications.page').then(m => m.NotificationsPage),
+        canActivate: [tripGuard]
       },
       {
         path: 'history',
-        loadComponent: () => import('./pages/main/history/history.page').then(m => m.HistoryPage)
+        loadComponent: () => import('./pages/main/history/history.page').then(m => m.HistoryPage),
+        canActivate: [tripGuard]
       },
       {
         path: 'map',
-        loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage)
+        loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage),
       },
       {
         path: 'messages',
-        loadComponent: () => import('./pages/main/messages/messages.page').then( m => m.MessagesPage)
+        loadComponent: () => import('./pages/main/messages/messages.page').then( m => m.MessagesPage),
+        canActivate: [tripGuard]
       },
       {
         path: 'profile',
-        loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage)
+        loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage),
+        canActivate: [tripGuard]
       }
     ]
   }
-
-
   // {
   //   path: 'close-vehicles',
   //   loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)

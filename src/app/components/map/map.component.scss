@@ -73,38 +73,63 @@
 //Trip styles
 
 .trip-info-container {
+  background-color: var(--ion-color-secondary-tint);
+  border-radius: 5px;
   position: absolute;
-  bottom: 60px; /* Ajusta según la altura del tab */
+  bottom: 60px;
   left: 0;
   right: 0;
-  background-color: white;
-  padding: 10px;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
 
-.trip-info {
-  margin-bottom: 10px;
+.trip-info-container.minimized {
+  max-height: 80px;
+}
+
+ion-card-title {
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+ion-card-title ion-button {
+  position: absolute;
+  right: -25px;
+}
+
+ion-card-title ion-icon {
+  font-size: 1.5rem;
+}
+
+ion-card-content {
+  --ion-list-padding: 0;
+}
+
+ion-list {
+  --ion-item-background: var(--ion-color-secondary-tint);
+  --ion-item-border-color: var(--ion-color-medium-tint);
 }
 
 .trip-actions {
   display: flex;
   justify-content: space-between;
+  transition: all 1s ease-in-out
 }
 
-.trip-actions button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.trio-actions ion-button {
+  flex: 1;
+  margin: 0 5px;
+  transition: flex 1s ease-in-out, width 1s ease-in-out
 }
 
-.trip-actions button:first-child {
-  background-color: #ff6c70;
-  color: white;
+.trip-actions .complete-button {
+  flex: 1;
+  width: 100%;
 }
 
-.trip-actions button:last-child {
-  background-color: #4caf50;
-  color: white;
+.trip-actions .hidden {
+  display: none;
 }

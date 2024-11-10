@@ -1,10 +1,17 @@
-import { OnInit, Component, ElementRef, ViewChild, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { OnInit, Component, ElementRef, ViewChild, ViewEncapsulation, 
+  ChangeDetectorRef } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Database, ref, set } from '@angular/fire/database';
+import { Database, ref, set, update } from '@angular/fire/database';
 import { Geolocation } from '@capacitor/geolocation';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { TripInterface } from 'src/app/interfaces/trip.interface';
+import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, 
+  IonList, IonIcon } from "@ionic/angular/standalone";
+import { addIcons } from 'ionicons';
+import { locationOutline, golfOutline, navigateOutline, timeOutline, cashOutline, arrowDownOutline, arrowUpOutline, closeOutline } from 'ionicons/icons';
+import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
+import { TripService } from 'src/app/services/trip.service';
 
 declare var google: any;
 
@@ -14,6 +21,8 @@ declare var google: any;
   styleUrls: ['./map.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
+  imports: [IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
+    PriceFormatPipe]
 })
 export class MapComponent implements OnInit {
   @ViewChild('map') mapElementRef!: ElementRef;
@@ -30,10 +39,12 @@ export class MapComponent implements OnInit {
   tripInfo: TripInterface | null = null;
   tripPublished = false;
   tripStarted = false;
+  tripInfoMinimized = false;
 
   constructor(private authService: AuthService, private database: Database, private router: Router, 
-    private alertController: AlertController, private cdr: ChangeDetectorRef) {
-    this.activeProfile = this.authService.getActiveProfile();
+    private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
+      addIcons({locationOutline,golfOutline,navigateOutline,timeOutline,cashOutline,closeOutline,arrowUpOutline});
+      this.activeProfile = this.authService.getActiveProfile();
   }
 
   ngOnInit() {
@@ -52,7 +63,6 @@ export class MapComponent implements OnInit {
     const { Map } = await google.maps.importLibrary("maps");
     const { Autocomplete } = await google.maps.importLibrary("places");
     
-
     const mapOptions = {
       center: this.center,
       zoom: 18,
@@ -79,6 +89,8 @@ export class MapComponent implements OnInit {
     }
   }
 
+  //Driver Logic
+
   async setDriverMode(Autocomplete: any) {
     const input = document.getElementById('pac-input') as HTMLInputElement;
     const autocomplete = new Autocomplete(input);
@@ -104,12 +116,9 @@ export class MapComponent implements OnInit {
 
       this.calculateRoute(origin, destination);
       this.calculateAndDisplayRoute(origin, destination);
-    });
-  }
 
-  setPassengerMode() {
-    // Lógica específica para el Pasajero
-    // Aquí se puede implementar la lógica para mostrar la lista de viajes
+      this.cdr.detectChanges();
+    });
   }
 
   calculateRoute(origin: any, destination: any) {
@@ -123,6 +132,8 @@ export class MapComponent implements OnInit {
         if (status === 'OK') {
           this.directionsRenderer.setDirections(response);
           const route = response.routes[0].legs[0];
+          const distance = parseFloat(route.distance.text.replace(' km', ''));
+          const price = this.calculatePrice(distance);
           this.tripInfo = {
             driver: this.authService.currentUserSig(),
             vehicle: this.authService.vehicleSig(),
@@ -135,7 +146,9 @@ export class MapComponent implements OnInit {
               coords: destination
             },
             distance: route.distance.text,
-            duration: route.duration.text
+            duration: route.duration.text,
+            price: price,
+            status: 'published'
           };
           this.cdr.detectChanges();
         } else {
@@ -145,8 +158,14 @@ export class MapComponent implements OnInit {
     );
   }
 
+  calculatePrice(distance: number): number {
+    const baseFare = 1000;
+    const costPerKm = 370;
+    return baseFare + (costPerKm * distance)
+  }
+
   async publishTrip() {
-    const alert = await this.alertController.create({
+    const publishAlert = await this.alertController.create({
       header: 'Confirmar',
       message: '¿Estás seguro de que deseas publicar este viaje?',
       buttons: [
@@ -166,22 +185,50 @@ export class MapComponent implements OnInit {
             localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
             await set(tripRef, this.tripInfo);
             this.tripPublished = true;
+            this.cdr.detectChanges();
           },
         }
       ]
     });
 
-    await alert.present();
+    await publishAlert.present();
   }
 
   startTrip() {
-    this.router.navigate(['/main/map']);
+    if (this.tripInfo) {
+      this.tripInfo.status = 'started';
+    }
+    const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
+    update(tripRef, { status: 'started' })
+    localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
     this.tripStarted = true;
+    this.tripService.startTrip();
+    this.router.navigate(['/main/map']);
+  }
+
+  completeTrip() {
+    if (this.tripInfo) {
+      this.tripInfo.status = 'completed';
+    }
+    const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
+    update(tripRef, { status: 'completed' });
+    localStorage.removeItem('currentTrip');
+    this.tripStarted = false;
+    this.tripService.completeTrip();
+    this.tripPublished = false;
+    this.tripInfo = null;
+    this.directionsRenderer.set('directions', null);
+    this.originMarker.setMap(null);
+    this.originMarker = null;
+    this.destinationMarker.setMap(null);
+    this.destinationMarker = null;
+
+    this.cdr.detectChanges();
   }
 
   cancelTrip() {
-    this.tripInfo = null;
     this.tripPublished = false;
+    this.tripInfo = null;
     this.directionsRenderer.set('directions', null);
     localStorage.removeItem('currentTrip');
     this.originMarker.setMap(null);
@@ -189,6 +236,31 @@ export class MapComponent implements OnInit {
     this.destinationMarker.setMap(null);
     this.destinationMarker = null;
     
+    this.cdr.detectChanges();
+  }
+
+  handleButtonClick() {
+    if (!this.tripPublished) {
+      this.publishTrip();
+    } else if (!this.tripStarted) {
+      this.startTrip();
+    } else {
+      this.completeTrip();
+    }
+  }
+
+  getButtonLabel() {
+    if (!this.tripPublished) {
+      return 'Publicar Viaje';
+    } else if (!this.tripStarted) {
+      return 'Comenzar Viaje';
+    } else {
+      return 'Finalizar Viaje';
+    }
+  }
+
+  toggleTripInfo() {
+    this.tripInfoMinimized = !this.tripInfoMinimized;
     this.cdr.detectChanges();
   }
 
@@ -232,5 +304,12 @@ export class MapComponent implements OnInit {
       title,
       content: markerContent
     });
+  }
+
+  //Passenger Logic
+
+  setPassengerMode() {
+    // Lógica específica para el Pasajero
+    // Aquí se puede implementar la lógica para mostrar la lista de viajes
   }
 }
