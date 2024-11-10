@@ -54,20 +54,25 @@ export class MapComponent implements OnInit {
     this.map = new Map(this.mapElementRef.nativeElement, mapOptions);
     this.directionsService = new google.maps.DirectionsService();
     this.directionsRenderer = new google.maps.DirectionsRenderer({
-      suppressMarkers: true
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#ff6c70',
+        strokeOpacity: 0.9,
+        strokeWeight: 4
+      }
     });
     this.directionsRenderer.setMap(this.map);
 
     if (this.activeProfile === 'driver') {
-      this.setDriverMode();
+      this.setDriverMode(Autocomplete);
     } else if (this.activeProfile === 'passenger') {
       this.setPassengerMode();
     }
   }
 
-  setDriverMode() {
+  setDriverMode(Autocomplete: any) {
     const input = document.getElementById('pac-input') as HTMLInputElement;
-    const autocomplete = new google.maps.places.Autocomplete(input);
+    const autocomplete = new Autocomplete(input);
     autocomplete.bindTo('bounds', this.map);
 
     autocomplete.addListener('place_changed', () => {
@@ -96,7 +101,7 @@ export class MapComponent implements OnInit {
 
     const markerContent = document.createElement('div');
     markerContent.innerHTML = `
-      <div style="background-color: white; border: 1px solid black; padding: 5px; border-radius: 50%;">
+      <div>
         <img src="${iconUrl}" style="width: 50px; height: 50px;">
       </div>
     `;
@@ -125,8 +130,8 @@ export class MapComponent implements OnInit {
           this.destinationMarker.map = null;
         }
 
-        this.originMarker = this.addCustomMarker(origin, 'Origin', 'URL_DE_TU_IMAGEN_ORIGEN');
-        this.destinationMarker = this.addCustomMarker(destination, 'Destination', 'URL_DE_TU_IMAGEN_DESTINO');
+        this.originMarker = this.addCustomMarker(origin, 'Origin', 'assets/map/OriginIconPin.png');
+        this.destinationMarker = this.addCustomMarker(destination, 'Destination', 'assets/map/DestinationIconPin.png');
       } else {
         console.error('Directions request failed due to ' + status);
       }
