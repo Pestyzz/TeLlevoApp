@@ -18,5 +18,6 @@ export interface TripInterface {
     distance: string;
     duration: string;
     price: number;
+    passengers: any[];
     status: 'published' | 'started' | 'completed';
 }

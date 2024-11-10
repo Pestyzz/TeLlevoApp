@@ -148,6 +148,7 @@ export class MapComponent implements OnInit {
             distance: route.distance.text,
             duration: route.duration.text,
             price: price,
+            passengers: [],
             status: 'published'
           };
           this.cdr.detectChanges();
@@ -311,5 +312,23 @@ export class MapComponent implements OnInit {
   setPassengerMode() {
     // Lógica específica para el Pasajero
     // Aquí se puede implementar la lógica para mostrar la lista de viajes
+  }
+
+  addPassengerToTrip(passenger: any, driver: any) {
+    if (!this.tripInfo) {
+      console.error('Trip information is missing');
+      return;
+    }
+
+    if (this.tripInfo.passengers.length >= this.tripInfo.vehicle.capacity) {
+      console.error('Vehicle is full');
+      return;
+    }
+
+    this.tripInfo.passengers.push(passenger);
+    const tripRef = ref(this.database, `trip/${driver.uid}`);
+    update(tripRef, { passengers: this.tripInfo.passengers });
+
+    this.cdr.detectChanges();
   }
 }
