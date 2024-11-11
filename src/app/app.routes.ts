@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { tripGuard } from './guards/trip.guard';
+import { driverGuard } from './guards/driver.guard';
+import { passengerGuard } from './guards/passenger.guard';
 
 export const routes: Routes = [
   {
@@ -38,12 +39,12 @@ export const routes: Routes = [
       {
         path: 'notifications',
         loadComponent: () => import('./pages/main/notifications/notifications.page').then(m => m.NotificationsPage),
-        canActivate: [tripGuard]
+        canActivate: [driverGuard]
       },
       {
         path: 'history',
         loadComponent: () => import('./pages/main/history/history.page').then(m => m.HistoryPage),
-        canActivate: [tripGuard]
+        canActivate: [driverGuard]
       },
       {
         path: 'map',
@@ -51,17 +52,18 @@ export const routes: Routes = [
       },
       {
         path: 'rides',
-        loadComponent: () => import('./pages/main/rides/rides.page').then( m => m.RidesPage)
+        loadComponent: () => import('./pages/main/rides/rides.page').then( m => m.RidesPage),
+        canActivate: [passengerGuard]
       },
       {
         path: 'messages',
         loadComponent: () => import('./pages/main/messages/messages.page').then( m => m.MessagesPage),
-        canActivate: [tripGuard]
+        canActivate: [driverGuard]
       },
       {
         path: 'profile',
         loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage),
-        canActivate: [tripGuard]
+        canActivate: [driverGuard]
       }
     ]
   },

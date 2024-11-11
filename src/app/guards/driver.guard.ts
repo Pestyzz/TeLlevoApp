@@ -4,13 +4,14 @@ import { AuthService } from '../services/auth.service';
 import { AlertController } from '@ionic/angular';
 import { TripService } from '../services/trip.service';
 
-export const tripGuard: CanActivateFn = async (route, state) => {
+export const driverGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthService)
   const router = inject(Router)
   const alertController = inject(AlertController)
   const tripService = inject(TripService)
 
   const activeProfile = authService.getActiveProfile();
+
   if (activeProfile === 'driver' && tripService.isTripStarted()) {
     const alert = await alertController.create({
       header: 'Advertencia',

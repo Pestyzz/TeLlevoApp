@@ -58,9 +58,13 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       const currentUser = this.authService.currentUserSig();
       if (currentUser) {
-        this.tripService.listenForPassengerNotifications(currentUser.uid, (status) => {
-          this.handlePassengerNotification(status);
-        })
+        this.tripService.listenForPassengerNotifications(currentUser.uid, (notifications) => {
+          notifications.forEach(notification => {
+            if (notification.type === 'response') {
+              this.handlePassengerNotification(notification.message);
+            }
+          });
+        });
       }
     }
   }
@@ -423,16 +427,19 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   async handleJoinRequest(request: any) {
+    const driverName = `${this.tripInfo?.driver.firstName} ${this.tripInfo?.driver.lastName}`;
+
     const alert = await this.alertController.create({
       header: 'Solicitud de pasajero',
-      message: `El pasajero ${request.firstName} ${request.lastName} desea unirse a tu viaje.`,
+      message: `${request.firstName} ${request.lastName} desea unirse a tu viaje.`,
       buttons: [
         {
           text: 'Rechazar',
           role: 'cancel',
           handler: async () => {
             try {
-              await this.tripService.rejectPassenger(this.tripInfo?.driver.uid!, request.uid);
+              await this.tripService.rejectPassenger(this.tripInfo?.driver.uid!, request.uid, driverName);
+              await this.updateNotificationHandledStatus(this.tripInfo?.driver.uid!, request.notificationKey);
               console.log('Join request rejected');
             } catch (error) {
               console.error('Error rejecting join request:', error);
@@ -443,7 +450,8 @@ export class MapComponent implements OnInit, OnDestroy {
           text: 'Aceptar',
           handler: async () => {
             try {
-              await this.tripService.addPassengerToTrip(this.tripInfo?.driver.uid!, request);
+              await this.tripService.addPassengerToTrip(this.tripInfo?.driver.uid!, request, driverName);
+              await this.updateNotificationHandledStatus(this.tripInfo?.driver.uid!, request.notificationKey);
               this.tripInfo?.passengers.push(request);
               this.cdr.detectChanges();
             } catch (error) {
@@ -455,15 +463,24 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   
     await alert.present();
+
+    setTimeout(() => {
+      alert.dismiss();
+    }, 5000); 
   }
 
-  async handlePassengerNotification(status: string) {
+  async handlePassengerNotification(message: string) {
     const alert = await this.alertController.create({
-      header: 'Notificación de viaje',
-      message: status === 'accepted' ? 'Tu solicitud para unirte al viaje ha sido aceptada.' : 'Tu solicitud para unirte al viaje ha sido rechazada.',
+      header: 'Alerta de viaje',
+      message: message,
       buttons: ['OK']
     });
 
     await alert.present();
+  }
+
+  async updateNotificationHandledStatus(driverUid: string, notificationKey: string) {
+    const notificationRef = ref(this.database, `notifications/${driverUid}/${notificationKey}`);
+    await update(notificationRef, { handled: true });
   }
 }
