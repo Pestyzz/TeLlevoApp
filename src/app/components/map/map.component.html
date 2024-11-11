@@ -1,56 +1,57 @@
 <div #map id="map"></div>
 @if (activeProfile === 'driver') {
-<div>
-    <input id="pac-input" class="controls" type="text" placeholder="Introduce el destino del viaje." />
-</div>
-@if (tripInfo) {
-<ion-card class="trip-info-container ion-margin ion-padding" [class.minimized]="tripInfoMinimized">
-    <ion-card-header class="ion-text-center">
-        <ion-card-title>
-            Información del viaje
-            <ion-button fill="clear" (click)="toggleTripInfo()">
-                <ion-icon [name]="tripInfoMinimized ? 'arrow-up-outline' : 'close-outline'"></ion-icon>
-            </ion-button>
-        </ion-card-title>
-    </ion-card-header>
-    @if (!tripInfoMinimized) {
-        <ion-card-content>
-            <ion-list inset="false">
-                <ion-item>
-                    <ion-input label="Origen" labelPlacement="stacked" value="{{ tripInfo.origin.name }}" readonly>
-                        <ion-icon name="location-outline" slot="start"></ion-icon>
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input label="Destino" labelPlacement="stacked" value="{{ tripInfo.destination.name }}" readonly>
-                        <ion-icon name="golf-outline" slot="start"></ion-icon>
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input label="Kilómetros" labelPlacement="stacked" value="{{ tripInfo.distance }}" readonly>
-                        <ion-icon name="navigate-outline" slot="start"></ion-icon>
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input label="Tiempo estimado" labelPlacement="stacked" value="{{ tripInfo.duration }}" readonly>
-                        <ion-icon name="time-outline" slot="start"></ion-icon>
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-input label="Precio" labelPlacement="stacked" value="{{ tripInfo.price | priceFormat }}" readonly>
-                        <ion-icon name="cash-outline" slot="start"></ion-icon>
-                    </ion-input>
-                </ion-item>
-            </ion-list>
-        </ion-card-content>
-    }
-    <div class="trip-actions">
-        <ion-button expand="full" fill="solid" shape="round" color="danger" (click)="cancelTrip()" [class.hidden]="tripStarted">
-            Cancelar
-        </ion-button>
-        <ion-button expand="full" fill="solid" shape="round" color="primary" (click)="handleButtonClick()" [class.complete-button]="tripStarted">
-            {{ getButtonLabel() }}
-        </ion-button>
+    <div>
+        <input id="pac-input" class="controls" type="text" placeholder="Introduce el destino del viaje." />
     </div>
-</ion-card>
-} }
+    @if (tripInfo) {
+    <ion-card class="trip-info-container ion-margin ion-padding" [class.minimized]="tripInfoMinimized">
+        <ion-card-header class="ion-text-center">
+            <ion-card-title>
+                Información del viaje
+                <ion-button fill="clear" (click)="toggleTripInfo()">
+                    <ion-icon [name]="tripInfoMinimized ? 'arrow-up-outline' : 'close-outline'"></ion-icon>
+                </ion-button>
+            </ion-card-title>
+        </ion-card-header>
+        @if (!tripInfoMinimized) {
+            <ion-card-content>
+                <ion-list inset="false">
+                    <ion-item>
+                        <ion-input label="Origen" labelPlacement="stacked" value="{{ tripInfo.origin.name }}" readonly>
+                            <ion-icon name="location-outline" slot="start"></ion-icon>
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input label="Destino" labelPlacement="stacked" value="{{ tripInfo.destination.name }}" readonly>
+                            <ion-icon name="golf-outline" slot="start"></ion-icon>
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input label="Kilómetros" labelPlacement="stacked" value="{{ tripInfo.distance }}" readonly>
+                            <ion-icon name="speedometer-outline" slot="start"></ion-icon>
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input label="Tiempo estimado" labelPlacement="stacked" value="{{ tripInfo.duration }}" readonly>
+                            <ion-icon name="time-outline" slot="start"></ion-icon>
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-input label="Precio" labelPlacement="stacked" value="{{ tripInfo.price | priceFormat }}" readonly>
+                            <ion-icon name="cash-outline" slot="start"></ion-icon>
+                        </ion-input>
+                    </ion-item>
+                </ion-list>
+            </ion-card-content>
+        }
+        <div class="trip-actions">
+            <ion-button expand="full" fill="solid" shape="round" color="danger" (click)="cancelTrip()" [class.hidden]="tripStarted">
+                Cancelar
+            </ion-button>
+            <ion-button expand="full" fill="solid" shape="round" color="primary" (click)="handleButtonClick()" [class.complete-button]="tripStarted">
+                {{ getButtonLabel() }}
+            </ion-button>
+        </div>
+    </ion-card>
+    }
+}

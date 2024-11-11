@@ -41,7 +41,6 @@ export class AuthFormComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPass: ['', [Validators.required, Validators.minLength(6)]],
       phone: ['', [Validators.required, Validators.min(111111111), Validators.max(999999999)]],
-      birthdate: ['', Validators.required],
       passenger: [false],
       driver: [false]
     }, { validators: this.checkboxValidator });

@@ -9,7 +9,7 @@ import { TripInterface } from 'src/app/interfaces/trip.interface';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, 
   IonList, IonIcon } from "@ionic/angular/standalone";
 import { addIcons } from 'ionicons';
-import { locationOutline, golfOutline, navigateOutline, timeOutline, cashOutline, arrowDownOutline, arrowUpOutline, closeOutline } from 'ionicons/icons';
+import { locationOutline, golfOutline, navigateOutline, timeOutline, cashOutline, arrowDownOutline, arrowUpOutline, closeOutline, speedometerOutline } from 'ionicons/icons';
 import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
 import { TripService } from 'src/app/services/trip.service';
 
@@ -43,12 +43,21 @@ export class MapComponent implements OnInit {
 
   constructor(private authService: AuthService, private database: Database, private router: Router, 
     private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
-      addIcons({locationOutline,golfOutline,navigateOutline,timeOutline,cashOutline,closeOutline,arrowUpOutline});
+      addIcons({locationOutline,golfOutline,speedometerOutline,timeOutline,cashOutline,closeOutline,arrowUpOutline});
       this.activeProfile = this.authService.getActiveProfile();
   }
 
   ngOnInit() {
     this.loadMap();
+    console.log(this.activeProfile);
+    if (this.activeProfile === 'passenger') {
+      const navigation = this.router.getCurrentNavigation();
+      console.log('Data:', navigation?.extras.state, navigation);
+      if (navigation?.extras.state) {
+        this.tripInfo = navigation.extras.state['trip'];
+        console.log('Trip info:', this.tripInfo);
+      }
+    }
   }
 
   async loadMap() {
@@ -85,7 +94,9 @@ export class MapComponent implements OnInit {
     if (this.activeProfile === 'driver') {
       this.setDriverMode(Autocomplete);
     } else if (this.activeProfile === 'passenger') {
-      this.setPassengerMode();
+      if (this.tripInfo) {
+        this.displayTripInfo();
+      }
     }
   }
 
@@ -134,9 +145,30 @@ export class MapComponent implements OnInit {
           const route = response.routes[0].legs[0];
           const distance = parseFloat(route.distance.text.replace(' km', ''));
           const price = this.calculatePrice(distance);
+          const currentUser = this.authService.currentUserSig();
+          const currentVehicle = this.authService.vehicleSig();
+          if (!currentUser || !currentVehicle) {
+            console.error('User or vehicle information is missing');
+            return;
+          }
           this.tripInfo = {
-            driver: this.authService.currentUserSig(),
-            vehicle: this.authService.vehicleSig(),
+            driver: {
+              uid: currentUser.uid,
+              firstName: currentUser.firstName,
+              lastName: currentUser.lastName,
+              rut: currentUser.rut,
+              email: currentUser.email,
+              phone: currentUser.phone,
+
+            },
+            vehicle: {
+              plate: currentVehicle.plate,
+              brand: currentVehicle.brand,
+              model: currentVehicle.model,
+              // year: currentVehicle.year,
+              color: currentVehicle.color,
+              capacity: currentVehicle.capacity
+            },
             origin: {
               name: route.start_address,
               coords: origin
@@ -181,7 +213,7 @@ export class MapComponent implements OnInit {
               console.error('Trip information is missing');
               return;
             }
-
+            console.log(this.tripInfo);
             const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
             localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
             await set(tripRef, this.tripInfo);
@@ -310,25 +342,84 @@ export class MapComponent implements OnInit {
   //Passenger Logic
 
   setPassengerMode() {
-    // Lógica específica para el Pasajero
-    // Aquí se puede implementar la lógica para mostrar la lista de viajes
   }
 
-  addPassengerToTrip(passenger: any, driver: any) {
+  displayTripInfo() {
     if (!this.tripInfo) {
       console.error('Trip information is missing');
       return;
     }
 
-    if (this.tripInfo.passengers.length >= this.tripInfo.vehicle.capacity) {
-      console.error('Vehicle is full');
+    const origin = this.tripInfo.origin.coords;
+    const destination = this.tripInfo.destination.coords;
+
+    this.calculateAndDisplayRoute(origin, destination);
+  }
+
+  async requestToJoinTrip() {
+    if (!this.tripInfo) {
+      console.error('Trip information is missing');
       return;
     }
 
-    this.tripInfo.passengers.push(passenger);
-    const tripRef = ref(this.database, `trip/${driver.uid}`);
-    update(tripRef, { passengers: this.tripInfo.passengers });
+    const currentUser = this.authService.currentUserSig();
+    if (!currentUser) {
+      console.error('User information is missing');
+      return;
+    }
 
-    this.cdr.detectChanges();
+    try {
+      await this.tripService.requestToJoinTrip(this.tripInfo.driver.uid, currentUser);
+
+      const alert = await this.alertController.create({
+        header: 'Solicitud enviada',
+        message: 'Tu solicitud para unirte al viaje ha sido enviada con éxito.',
+        buttons: ['OK']
+      });
+
+      await alert.present();
+    } catch (error) {
+      console.error('Error sending join request:', error);
+    }
+  }
+
+  async handleJoinRequest(request: any) {
+    const alert = await this.alertController.create({
+      header: 'Solicitud de pasajero',
+      message: `El pasajero ${request.firstName} ${request.lastName} desea unirse a tu viaje.`,
+      buttons: [
+        {
+          text: 'Rechazar',
+          role: 'cancel',
+          handler: () => {
+            console.log('Join request rejected');
+          }
+        },
+        {
+          text: 'Aceptar',
+          handler: async () => {
+            try {
+              await this.tripService.addPassengerToTrip(this.tripInfo?.driver.uid!, request);
+              this.cdr.detectChanges();
+            } catch (error) {
+              console.error('Error adding passenger to trip:', error);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  listenForJoinRequests() {
+    const driverUid = this.authService.firebaseAuth.currentUser?.uid;
+    if (driverUid) {
+      this.tripService.listenForJoinRequests(driverUid, (request) => {
+        this.handleJoinRequest(request);
+      });
+    } else {
+      console.error('Driver UID is missing');
+    }
   }
 }

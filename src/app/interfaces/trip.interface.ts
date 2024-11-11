@@ -1,5 +1,12 @@
 export interface TripInterface {
-    driver: any;
+    driver: {
+        uid: string;
+        firstName: string;
+        lastName: string;
+        rut: string;
+        email: string;
+        phone: number;
+    };
     vehicle: any;
     origin: {
         name: string,

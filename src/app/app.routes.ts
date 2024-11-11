@@ -50,6 +50,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage),
       },
       {
+        path: 'rides',
+        loadComponent: () => import('./pages/main/rides/rides.page').then( m => m.RidesPage)
+      },
+      {
         path: 'messages',
         loadComponent: () => import('./pages/main/messages/messages.page').then( m => m.MessagesPage),
         canActivate: [tripGuard]
@@ -60,7 +64,8 @@ export const routes: Routes = [
         canActivate: [tripGuard]
       }
     ]
-  }
+  },
+
   // {
   //   path: 'close-vehicles',
   //   loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
