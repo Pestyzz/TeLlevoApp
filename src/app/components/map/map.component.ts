@@ -1,15 +1,16 @@
 import { OnInit, Component, ElementRef, ViewChild, ViewEncapsulation, 
-  ChangeDetectorRef } from '@angular/core';
+  ChangeDetectorRef, 
+  OnDestroy} from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Database, ref, set, update } from '@angular/fire/database';
+import { Database, off, ref, set, update } from '@angular/fire/database';
 import { Geolocation } from '@capacitor/geolocation';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { TripInterface } from 'src/app/interfaces/trip.interface';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, 
-  IonList, IonIcon } from "@ionic/angular/standalone";
+  IonList, IonIcon, IonButtons } from "@ionic/angular/standalone";
 import { addIcons } from 'ionicons';
-import { locationOutline, golfOutline, navigateOutline, timeOutline, cashOutline, arrowDownOutline, arrowUpOutline, closeOutline, speedometerOutline } from 'ionicons/icons';
+import { locationOutline, golfOutline, timeOutline, cashOutline, arrowUpOutline, closeOutline, speedometerOutline, add } from 'ionicons/icons';
 import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
 import { TripService } from 'src/app/services/trip.service';
 
@@ -21,10 +22,10 @@ declare var google: any;
   styleUrls: ['./map.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
+  imports: [IonButtons, IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
     PriceFormatPipe]
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnDestroy {
   @ViewChild('map') mapElementRef!: ElementRef;
   map: any;
   mapListener: any;
@@ -43,21 +44,22 @@ export class MapComponent implements OnInit {
 
   constructor(private authService: AuthService, private database: Database, private router: Router, 
     private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
-      addIcons({locationOutline,golfOutline,speedometerOutline,timeOutline,cashOutline,closeOutline,arrowUpOutline});
+      addIcons({locationOutline,golfOutline,speedometerOutline,timeOutline,cashOutline,add,closeOutline,arrowUpOutline});
       this.activeProfile = this.authService.getActiveProfile();
   }
 
   ngOnInit() {
     this.loadMap();
-    console.log(this.activeProfile);
     if (this.activeProfile === 'passenger') {
       const navigation = this.router.getCurrentNavigation();
-      console.log('Data:', navigation?.extras.state, navigation);
       if (navigation?.extras.state) {
         this.tripInfo = navigation.extras.state['trip'];
-        console.log('Trip info:', this.tripInfo);
       }
     }
+  }
+
+  ngOnDestroy() {
+    this.tripService.stopListeningForJoinRequests();
   }
 
   async loadMap() {
@@ -127,6 +129,16 @@ export class MapComponent implements OnInit {
 
       this.calculateRoute(origin, destination);
       this.calculateAndDisplayRoute(origin, destination);
+
+      const driverUid = this.authService.firebaseAuth.currentUser?.uid;
+      if (driverUid) {
+        console.log('Driver UID:', driverUid);
+        this.tripService.listenForJoinRequests(driverUid, (request) => {
+          console.log('Join request:', request);
+          this.handleJoinRequest(request);
+        });
+        console.log('Listening for join requests...');
+      }
 
       this.cdr.detectChanges();
     });
@@ -213,7 +225,6 @@ export class MapComponent implements OnInit {
               console.error('Trip information is missing');
               return;
             }
-            console.log(this.tripInfo);
             const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
             localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
             await set(tripRef, this.tripInfo);
@@ -341,9 +352,6 @@ export class MapComponent implements OnInit {
 
   //Passenger Logic
 
-  setPassengerMode() {
-  }
-
   displayTripInfo() {
     if (!this.tripInfo) {
       console.error('Trip information is missing');
@@ -354,6 +362,10 @@ export class MapComponent implements OnInit {
     const destination = this.tripInfo.destination.coords;
 
     this.calculateAndDisplayRoute(origin, destination);
+  }
+
+  navigateToRides() {
+    this.router.navigate(['/main/rides']);
   }
 
   async requestToJoinTrip() {
@@ -369,7 +381,14 @@ export class MapComponent implements OnInit {
     }
 
     try {
-      await this.tripService.requestToJoinTrip(this.tripInfo.driver.uid, currentUser);
+      await this.tripService.requestToJoinTrip(this.tripInfo.driver.uid, {
+        uid: currentUser.uid,
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        rut: currentUser.rut,
+        email: currentUser.email,
+        phone: currentUser.phone
+      });
 
       const alert = await this.alertController.create({
         header: 'Solicitud enviada',
@@ -400,6 +419,7 @@ export class MapComponent implements OnInit {
           handler: async () => {
             try {
               await this.tripService.addPassengerToTrip(this.tripInfo?.driver.uid!, request);
+              this.tripInfo?.passengers.push(request);
               this.cdr.detectChanges();
             } catch (error) {
               console.error('Error adding passenger to trip:', error);
@@ -410,16 +430,5 @@ export class MapComponent implements OnInit {
     });
 
     await alert.present();
-  }
-
-  listenForJoinRequests() {
-    const driverUid = this.authService.firebaseAuth.currentUser?.uid;
-    if (driverUid) {
-      this.tripService.listenForJoinRequests(driverUid, (request) => {
-        this.handleJoinRequest(request);
-      });
-    } else {
-      console.error('Driver UID is missing');
-    }
   }
 }

@@ -84,7 +84,7 @@
 }
 
 .trip-info-container.minimized {
-  max-height: 80px;
+  max-height: 77px;
 }
 
 ion-card-title {
@@ -113,23 +113,17 @@ ion-list {
   --ion-item-border-color: var(--ion-color-medium-tint);
 }
 
-.trip-actions {
+ion-buttons {
   display: flex;
   justify-content: space-between;
-  transition: all 1s ease-in-out
 }
 
-.trio-actions ion-button {
+ion-buttons ion-button {
   flex: 1;
   margin: 0 5px;
-  transition: flex 1s ease-in-out, width 1s ease-in-out
 }
 
-.trip-actions .complete-button {
+ion-buttons .complete-button {
   flex: 1;
   width: 100%;
-}
-
-.trip-actions .hidden {
-  display: none;
 }

@@ -3,8 +3,9 @@
     <div>
         <input id="pac-input" class="controls" type="text" placeholder="Introduce el destino del viaje." />
     </div>
-    @if (tripInfo) {
-    <ion-card class="trip-info-container ion-margin ion-padding" [class.minimized]="tripInfoMinimized">
+}
+@if (tripInfo) {
+    <ion-card class="trip-info-container ion-margin ion-padding animate__animated animate__fadeInUpBig" [class.minimized]="tripInfoMinimized">
         <ion-card-header class="ion-text-center">
             <ion-card-title>
                 Información del viaje
@@ -44,14 +45,22 @@
                 </ion-list>
             </ion-card-content>
         }
-        <div class="trip-actions">
-            <ion-button expand="full" fill="solid" shape="round" color="danger" (click)="cancelTrip()" [class.hidden]="tripStarted">
-                Cancelar
-            </ion-button>
-            <ion-button expand="full" fill="solid" shape="round" color="primary" (click)="handleButtonClick()" [class.complete-button]="tripStarted">
-                {{ getButtonLabel() }}
-            </ion-button>
-        </div>
+        <ion-buttons>
+            @if (activeProfile === 'driver') {
+                <ion-button expand="block" fill="solid" shape="round" color="danger" (click)="cancelTrip()" [class.ion-hide]="tripStarted">
+                    Cancelar
+                </ion-button>
+                <ion-button expand="block" fill="solid" shape="round" color="primary" (click)="handleButtonClick()" [class.complete-button]="tripStarted">
+                    {{ getButtonLabel() }}
+                </ion-button>
+            } @else {
+                <ion-button expand="full" fill="solid" shape="round" color="dark" (click)="navigateToRides()" [class.ion-hide]="tripStarted">
+                    Lista de Viajes
+                </ion-button>
+                <ion-button expand="full" fill="solid" shape="round" color="primary" (click)="requestToJoinTrip()" [class.complete-button]="tripStarted">
+                    Solicitar Unirse
+                </ion-button>
+            }   
+        </ion-buttons>
     </ion-card>
-    }
 }
