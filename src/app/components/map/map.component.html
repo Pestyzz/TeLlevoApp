@@ -1,7 +1,7 @@
 <div #map id="map"></div>
 @if (activeProfile === 'driver') {
     <div>
-        <input id="pac-input" class="controls" type="text" placeholder="Introduce el destino del viaje." />
+        <input id="pac-input" class="controls" type="text" placeholder="Introduce el destino del viaje." [disabled]="tripPublished" />
     </div>
 }
 @if (tripInfo) {

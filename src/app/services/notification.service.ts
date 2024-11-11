@@ -34,6 +34,32 @@ export class NotificationService {
     });
   }
 
+  listenForNewNotifications(userUid: string, callback: (newNotificationsCount: number) => void) {
+    const notificationsRef = ref(this.database, `notifications/${userUid}`);
+    onValue(notificationsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const notifications = Object.values(snapshot.val());
+        const newNotifications = notifications.filter((notification: any) => !notification.handled);
+        callback(newNotifications.length);
+      } else {
+        callback(0);
+      }
+    });
+  }
+
+  markAllNotificationsAsHandled(userUid: string) {
+    const notificationsRef = ref(this.database, `notifications/${userUid}`);
+    onValue(notificationsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const updates: any = {};
+        snapshot.forEach((childSnapshot) => {
+          updates[childSnapshot.key] = { ...childSnapshot.val(), handled: true};
+        });
+        set(notificationsRef, updates);
+      }
+    });
+  }
+
   async notifyPassenger(passengerUid: string, message: string) {
     const notificationRef = ref(this.database, `notifications/${passengerUid}`);
     const newNotificationRef = push(notificationRef);

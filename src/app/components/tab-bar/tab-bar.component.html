@@ -6,8 +6,11 @@
   </ion-fab>
 
   <ion-tab-bar slot="bottom" class="ion-no-border">
-    <ion-tab-button tab="notifications" class="notifications" [routerLink]="['/main/notifications']">
+    <ion-tab-button tab="notifications" class="notifications" [routerLink]="['/main/notifications']" (click)="markNotificationsAsHandled()">
       <ion-icon name="notifications"></ion-icon>
+      @if (newNotificationsCount > 0){
+        <ion-badge color="danger">{{ newNotificationsCount }}</ion-badge>
+      }
     </ion-tab-button>
 
     <ion-tab-button tab="history" class="history" [routerLink]="['/main/history']">

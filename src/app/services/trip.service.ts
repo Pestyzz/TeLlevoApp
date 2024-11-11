@@ -21,8 +21,11 @@ export class TripService {
     this.tripStarted = true;
   }
 
-  completeTrip() {
-    this.tripStarted = false;
+  completeTrip(driverUid: string) {
+    const tripRef = ref(this.database, `trip/${driverUid}`);
+    update(tripRef, { completed: true }).then(() => {
+      localStorage.removeItem('tripInfo'); // Limpiar los datos del viaje de localStorage
+    });
   }
 
   isTripStarted() {
@@ -108,6 +111,7 @@ export class TripService {
       trip.passengers.push(passenger);
       await update(tripRef, { passengers: trip.passengers });
       await this.notificationService.notifyPassenger(passenger.uid, `${driverName} ha aceptado tu solicitud de unirte a su viaje!`);
+      localStorage.setItem('tripInfo', JSON.stringify(trip));
     }
   }
 

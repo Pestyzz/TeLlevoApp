@@ -51,21 +51,61 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadMap();
+    this.directionsService = new google.maps.DirectionsService();
+    this.directionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#ff6c70',
+        strokeOpacity: 0.9,
+        strokeWeight: 4
+      }
+    });
+    this.directionsRenderer.setMap(this.map);
+
+    const currentUser = this.authService.currentUserSig();
+    const navigation = this.router.getCurrentNavigation();
+  
     if (this.activeProfile === 'passenger') {
-      const navigation = this.router.getCurrentNavigation();
       if (navigation?.extras.state) {
         this.tripInfo = navigation.extras.state['trip'];
+        localStorage.setItem('tripInfo', JSON.stringify(this.tripInfo)); // Guardar los datos del viaje en localStorage
+      } else {
+        const storedTripInfo = localStorage.getItem('tripInfo');
+        if (storedTripInfo) {
+          this.tripInfo = JSON.parse(storedTripInfo); // Cargar los datos del viaje desde localStorage
+        }
       }
-      const currentUser = this.authService.currentUserSig();
       if (currentUser) {
         this.tripService.listenForPassengerNotifications(currentUser.uid, (notifications) => {
           notifications.forEach(notification => {
-            if (notification.type === 'response') {
-              this.handlePassengerNotification(notification.message);
+            if (notification.type === 'response' && !notification.handled) {
+              this.handlePassengerNotification(notification);
             }
           });
         });
       }
+    } else if (this.activeProfile === 'driver') {
+      if (navigation?.extras.state) {
+        this.tripInfo = navigation.extras.state['trip'];
+        localStorage.setItem('tripInfo', JSON.stringify(this.tripInfo)); // Guardar los datos del viaje en localStorage
+      } else {
+        const storedTripInfo = localStorage.getItem('tripInfo');
+        if (storedTripInfo) {
+          this.tripInfo = JSON.parse(storedTripInfo); // Cargar los datos del viaje desde localStorage
+          this.calculateAndDisplayRoute(this.tripInfo?.origin.coords!, this.tripInfo?.destination.coords!);
+        }
+      }
+      if (currentUser) {
+        this.tripService.listenForJoinRequests(currentUser.uid, (request) => {
+          this.handleJoinRequest(request);
+          // Manejar las solicitudes de unirse al viaje aquí
+        });
+      }
+    }
+  
+    // Verificar si el viaje está publicado
+    if (this.tripInfo && this.tripInfo.status === 'published') {
+      this.tripPublished = true;
     }
   }
 
@@ -237,7 +277,7 @@ export class MapComponent implements OnInit, OnDestroy {
               return;
             }
             const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
-            localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
+            localStorage.setItem('tripInfo', JSON.stringify(this.tripInfo));
             await set(tripRef, this.tripInfo);
             this.tripPublished = true;
             this.cdr.detectChanges();
@@ -261,15 +301,17 @@ export class MapComponent implements OnInit, OnDestroy {
     this.router.navigate(['/main/map']);
   }
 
-  completeTrip() {
+  completeCurrentTrip() {
     if (this.tripInfo) {
       this.tripInfo.status = 'completed';
     }
-    const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
-    update(tripRef, { status: 'completed' });
-    localStorage.removeItem('currentTrip');
+    const driverUid = this.authService.firebaseAuth.currentUser?.uid;
+    const tripRef = ref(this.database, `trip/${driverUid!}`);
+    update(tripRef, { status: 'completed' }).then(() => {
+      localStorage.removeItem('tripInfo');
+    });
     this.tripStarted = false;
-    this.tripService.completeTrip();
+    this.tripService.completeTrip(driverUid!);
     this.tripPublished = false;
     this.tripInfo = null;
     this.directionsRenderer.set('directions', null);
@@ -300,7 +342,7 @@ export class MapComponent implements OnInit, OnDestroy {
     } else if (!this.tripStarted) {
       this.startTrip();
     } else {
-      this.completeTrip();
+      this.completeCurrentTrip();
     }
   }
 
@@ -469,14 +511,19 @@ export class MapComponent implements OnInit, OnDestroy {
     }, 5000); 
   }
 
-  async handlePassengerNotification(message: string) {
+  async handlePassengerNotification(notification: any) {
     const alert = await this.alertController.create({
       header: 'Alerta de viaje',
-      message: message,
+      message: notification.message,
       buttons: ['OK']
     });
 
     await alert.present();
+
+    const currentUser = this.authService.currentUserSig();
+    if (currentUser) {
+      await this.updateNotificationHandledStatus(currentUser.uid, notification.key);
+    }
   }
 
   async updateNotificationHandledStatus(driverUid: string, notificationKey: string) {
