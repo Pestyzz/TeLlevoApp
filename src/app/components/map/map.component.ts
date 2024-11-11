@@ -41,6 +41,7 @@ export class MapComponent implements OnInit, OnDestroy {
   tripPublished = false;
   tripStarted = false;
   tripInfoMinimized = false;
+  requestSent = false;
 
   constructor(private authService: AuthService, private database: Database, private router: Router, 
     private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
@@ -54,6 +55,12 @@ export class MapComponent implements OnInit, OnDestroy {
       const navigation = this.router.getCurrentNavigation();
       if (navigation?.extras.state) {
         this.tripInfo = navigation.extras.state['trip'];
+      }
+      const currentUser = this.authService.currentUserSig();
+      if (currentUser) {
+        this.tripService.listenForPassengerNotifications(currentUser.uid, (status) => {
+          this.handlePassengerNotification(status);
+        })
       }
     }
   }
@@ -380,6 +387,17 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.requestSent) {
+      const alert = await this.alertController.create({
+        header: 'Solicitud ya enviada',
+        message: 'Ya has enviado una solicitud para unirte a este viaje.',
+        buttons: ['OK']
+      });
+
+      await alert.present();
+      return;
+    }
+
     try {
       await this.tripService.requestToJoinTrip(this.tripInfo.driver.uid, {
         uid: currentUser.uid,
@@ -389,6 +407,8 @@ export class MapComponent implements OnInit, OnDestroy {
         email: currentUser.email,
         phone: currentUser.phone
       });
+
+      this.requestSent = true;
 
       const alert = await this.alertController.create({
         header: 'Solicitud enviada',
@@ -410,8 +430,13 @@ export class MapComponent implements OnInit, OnDestroy {
         {
           text: 'Rechazar',
           role: 'cancel',
-          handler: () => {
-            console.log('Join request rejected');
+          handler: async () => {
+            try {
+              await this.tripService.rejectPassenger(this.tripInfo?.driver.uid!, request.uid);
+              console.log('Join request rejected');
+            } catch (error) {
+              console.error('Error rejecting join request:', error);
+            }
           }
         },
         {
@@ -427,6 +452,16 @@ export class MapComponent implements OnInit, OnDestroy {
           }
         }
       ]
+    });
+  
+    await alert.present();
+  }
+
+  async handlePassengerNotification(status: string) {
+    const alert = await this.alertController.create({
+      header: 'Notificación de viaje',
+      message: status === 'accepted' ? 'Tu solicitud para unirte al viaje ha sido aceptada.' : 'Tu solicitud para unirte al viaje ha sido rechazada.',
+      buttons: ['OK']
     });
 
     await alert.present();
