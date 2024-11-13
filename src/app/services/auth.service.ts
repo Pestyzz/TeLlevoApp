@@ -73,6 +73,7 @@ export class AuthService {
       return updateProfile(response.user, { displayName: username }).then(() => {
         const userDocRef = doc(this.firestore, `user/${response.user.uid}`);
         return setDoc(userDocRef, {
+          uid: response.user.uid,
           firstName: additionalData.firstName,
           lastName: additionalData.lastName,
           rut: additionalData.rut,
