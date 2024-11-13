@@ -46,6 +46,7 @@ export class TripService {
   }
 
   async requestToJoinTrip(driverUid: string, passenger: any) {
+    driverUid = driverUid.trim();
     const notificationKey = await this.notificationService.addNotification(driverUid, passenger, 'joinRequest');
     const requestRef = ref(this.database, `trip/${driverUid}/requests/${passenger.uid}`);
     const request = {
@@ -56,20 +57,29 @@ export class TripService {
   }
 
   listenForJoinRequests(driverUid: string, callback: (request: any) => void) {
-    if (this.joinRequestsRef) {
-      off(this.joinRequestsRef);
-    }
-    this.joinRequestsRef = ref(this.database, `trip/${driverUid}/requests`);
-    onValue(this.joinRequestsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const requests = snapshot.val();
-        console.log('Requests:', requests);
-        Object.keys(requests).forEach(key => {
-          const request = requests[key];
-          callback(request);
-        });
+    try {
+      if (this.joinRequestsRef) {
+        off(this.joinRequestsRef);
       }
-    });
+      this.joinRequestsRef = ref(this.database, `trip/${driverUid}/requests`);
+      console.log('Listening for join requests at:', this.joinRequestsRef.toString());
+  
+      onValue(this.joinRequestsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const requests = snapshot.val();
+          console.log('Requests:', requests);
+          Object.keys(requests).forEach(key => {
+            const request = requests[key];
+            console.log('Processing request:', request);
+            callback(request);
+          });
+        } else {
+          console.log('No join requests found for driver:', driverUid);
+        }
+      });
+    } catch (error) {
+      console.error('Error in listenForJoinRequests:', error);
+    }
   }
 
   stopListeningForJoinRequests() {
@@ -98,20 +108,34 @@ export class TripService {
   }
 
   async addPassengerToTrip(driverUid: string, passenger: any, driverName: string) {
-    const tripRef = ref(this.database, `trip/${driverUid}`);
-    const snapshot = await get(tripRef);
-    if (snapshot.exists()) {
-      const trip = snapshot.val();
-      if (!trip.passengers) {
-        trip.passengers = [];
+    try {
+      console.log('Adding passenger to trip for driver:', driverUid);
+      const tripRef = ref(this.database, `trip/${driverUid}`);
+      const snapshot = await get(tripRef);
+  
+      if (snapshot.exists()) {
+        const trip = snapshot.val();
+        console.log('Trip data:', trip);
+  
+        if (!trip.passengers) {
+          trip.passengers = [];
+        }
+  
+        if (trip.passengers.length >= trip.vehicle.capacity) {
+          throw new Error('Vehicle is full');
+        }
+  
+        trip.passengers.push(passenger);
+        await update(tripRef, { passengers: trip.passengers });
+        console.log('Passenger added:', passenger);
+  
+        await this.notificationService.notifyPassenger(passenger.uid, `${driverName} ha aceptado tu solicitud de unirte a su viaje!`);
+        localStorage.setItem('tripInfo', JSON.stringify(trip));
+      } else {
+        console.error('Trip not found for driver:', driverUid);
       }
-      if (trip.passengers.length >= trip.vehicle.capacity) {
-        throw new Error('Vehicle is full');
-      }
-      trip.passengers.push(passenger);
-      await update(tripRef, { passengers: trip.passengers });
-      await this.notificationService.notifyPassenger(passenger.uid, `${driverName} ha aceptado tu solicitud de unirte a su viaje!`);
-      localStorage.setItem('tripInfo', JSON.stringify(trip));
+    } catch (error) {
+      console.error('Error in addPassengerToTrip:', error);
     }
   }
 
