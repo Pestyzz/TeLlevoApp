@@ -295,7 +295,7 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
     update(tripRef, { status: 'started' })
-    localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
+    // localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
     this.tripStarted = true;
     this.tripService.startTrip();
     this.router.navigate(['/main/map']);
@@ -506,9 +506,9 @@ export class MapComponent implements OnInit, OnDestroy {
   
     await alert.present();
 
-    setTimeout(() => {
-      alert.dismiss();
-    }, 5000); 
+    // setTimeout(() => {
+    //   alert.dismiss();
+    // }, 5000); 
   }
 
   async handlePassengerNotification(notification: any) {

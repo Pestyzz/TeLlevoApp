@@ -1,33 +1,36 @@
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button [routerLink]="['/map']" shape="round" class="back-button">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        Volver
-      </ion-button>
-    </ion-buttons>
-    <ion-title class="ion-text-end">
-      <div class="title-content">
-        <ion-icon name="time" color="primary"></ion-icon>
-        <span>Historial</span>
-      </div>
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-icon name="time" color="primary" slot="start" size="large" class="ion-padding-start"></ion-icon>
+    <ion-title>
+      Historial
     </ion-title>
   </ion-toolbar>
-</ion-header> -->
+</ion-header>
 
-<!-- <ion-list *ngIf="history.length > 0; else noHistory">
-  <ion-item *ngFor="let item of history">
-    <ion-avatar slot="start">
-      <ion-icon name="time" size="large" color="dark"></ion-icon>
-    </ion-avatar>
-    <ion-label>
-      <h2>{{ item.message }}</h2>
-      <p>{{ item.status }}</p>
-    </ion-label>
-  </ion-item>
+<ion-content color="tertiary">
+  <ion-list class="ion-margin ion-padding">
+    @for (trip of history; track $index) {
+        <ion-item>
+            <ion-icon name="car-sport-outline" size="large" color="dark" slot="start"></ion-icon>
+            <ion-label class="ion-padding ion-text-capitalize">
+                <h2 class="ellipsis">
+                    <ion-icon name="golf-outline"></ion-icon>
+                    {{ getMainLocality(trip.destination.name) }}
+                </h2>
+                <p class="ellipsis">
+                    <ion-icon name="location-outline"></ion-icon>
+                    {{ trip.origin.name }}
+                </p>
+                <p>
+                    <ion-icon name="person-outline"></ion-icon>
+                    {{ trip.driver.firstName }} {{ trip.driver.lastName }}
+                </p>
+                <p>
+                    <ion-icon name="car-sport-outline"></ion-icon>
+                    {{ trip.vehicle.brand }} {{ trip.vehicle.model }} {{ trip.vehicle.color }}
+                </p>
+            </ion-label>
+        </ion-item>
+    }
 </ion-list>
-<ng-template #noHistory>
-  <div class="no-history">
-    <p>No haz realizado ningún viaje.</p>
-  </div>
-</ng-template> -->
+</ion-content>

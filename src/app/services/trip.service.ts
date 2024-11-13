@@ -112,6 +112,8 @@ export class TripService {
       await update(tripRef, { passengers: trip.passengers });
       await this.notificationService.notifyPassenger(passenger.uid, `${driverName} ha aceptado tu solicitud de unirte a su viaje!`);
       localStorage.setItem('tripInfo', JSON.stringify(trip));
+      // Marcar la notificación como manejada
+      await this.notificationService.markAllNotificationsAsHandled(driverUid);
     }
   }
 
@@ -128,5 +130,29 @@ export class TripService {
       }
     }
     return null;
+  }
+
+  async getCompletedTrips(userUid: string, isDriver: boolean): Promise<any[]> {
+    const tripRef = ref(this.database, `trip`);
+    const snapshot = await get(tripRef);
+    const completedTrips = [];
+  
+    if (snapshot.exists()) {
+      const trips = snapshot.val();
+      for (const tripId in trips) {
+        const trip = trips[tripId];
+        if (trip.status === 'completed') {
+          if (isDriver && trip.driver.uid === userUid) {
+            completedTrips.push(trip);
+            console.log('Driver trip:', trip);
+          } else if (!isDriver && trip.passengers && trip.passengers.some((p: any) => p.uid === userUid)) {
+            completedTrips.push(trip);
+            console.log('Passenger trip:', trip);
+          }
+        }
+      }
+    }
+    
+    return completedTrips;
   }
 }

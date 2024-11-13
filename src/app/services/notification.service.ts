@@ -53,7 +53,7 @@ export class NotificationService {
       if (snapshot.exists()) {
         const updates: any = {};
         snapshot.forEach((childSnapshot) => {
-          updates[childSnapshot.key] = { ...childSnapshot.val(), handled: true};
+          updates[childSnapshot.key] = { ...childSnapshot.val(), handled: true };
         });
         set(notificationsRef, updates);
       }

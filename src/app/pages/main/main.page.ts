@@ -68,6 +68,7 @@ export class MainPage implements OnInit {
   changeProfile(profile: 'passenger' | 'driver') {
     this.activeProfile = profile;
     this.authService.setActiveProfile(profile);
+    this.router.navigate([profile === 'driver' ? '/main/map' : '/main/rides']);
   }
 
   showDropdown(): boolean {
