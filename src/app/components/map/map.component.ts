@@ -41,6 +41,7 @@ export class MapComponent implements OnInit, OnDestroy {
   tripPublished = false;
   tripStarted = false;
   tripInfoMinimized = false;
+  isInTrip = false;
 
   constructor(private authService: AuthService, private database: Database, private router: Router, 
     private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
@@ -65,6 +66,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const navigation = this.router.getCurrentNavigation();
   
     if (this.activeProfile === 'passenger') {
+      this.checkCurrentTrip();
       if (navigation?.extras.state) {
         this.tripInfo = navigation.extras.state['trip'];
         localStorage.setItem('tripInfo', JSON.stringify(this.tripInfo)); // Guardar los datos del viaje en localStorage
@@ -291,6 +293,7 @@ export class MapComponent implements OnInit, OnDestroy {
   startTrip() {
     if (this.tripInfo) {
       this.tripInfo.status = 'started';
+      localStorage.setItem('tripInfo', JSON.stringify(this.tripInfo));
     }
     const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
     update(tripRef, { status: 'started' })
@@ -324,10 +327,11 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   cancelTrip() {
+    this.tripService.cancelTrip(this.tripInfo?.driver.uid!);
     this.tripPublished = false;
     this.tripInfo = null;
     this.directionsRenderer.set('directions', null);
-    localStorage.removeItem('currentTrip');
+    localStorage.removeItem('tripInfo');
     this.originMarker.setMap(null);
     this.originMarker = null;
     this.destinationMarker.setMap(null);
@@ -529,5 +533,20 @@ export class MapComponent implements OnInit, OnDestroy {
   async updateNotificationHandledStatus(driverUid: string, notificationKey: string) {
     const notificationRef = ref(this.database, `notifications/${driverUid}/${notificationKey}`);
     await update(notificationRef, { handled: true });
+  }
+
+  async checkCurrentTrip() {
+    const passengerUid = this.authService.firebaseAuth.currentUser?.uid;
+    if (passengerUid) {
+      const currentTrip = await this.tripService.getCurrentTrip(passengerUid);
+      if (currentTrip) {
+        this.isInTrip = true;
+        this.tripInfo = currentTrip;
+      } else {
+        this.isInTrip = false;
+      }
+      this.cdr.detectChanges();
+    }
+    console.log('Is in trip:', this.isInTrip);
   }
 }

@@ -1,32 +1,51 @@
-<ion-list class="ion-margin ion-padding">
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-icon name="car" color="primary" slot="start" size="large" class="ion-padding-start"></ion-icon>
+    <ion-title>Viajes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="tertiary">
+  @if (availableTrips.length > 0) {
+  <ion-list class="ion-margin ion-padding">
     @for (trip of availableTrips; track $index) {
-        <ion-item>
-            <ion-icon name="car-sport-outline" size="large" color="dark" slot="start"></ion-icon>
-            <ion-label class="ion-padding ion-text-capitalize">
-                <h2 class="ellipsis">
-                    <ion-icon name="golf-outline"></ion-icon>
-                    {{ getMainLocality(trip.destination.name) }}
-                </h2>
-                <p class="ellipsis">
-                    <ion-icon name="location-outline"></ion-icon>
-                    {{ trip.origin.name }}
-                </p>
-                <p>
-                    <ion-icon name="person-outline"></ion-icon>
-                    {{ trip.driver.firstName }} {{ trip.driver.lastName }}
-                </p>
-                <p>
-                    <ion-icon name="car-sport-outline"></ion-icon>
-                    {{ trip.vehicle.brand }} {{ trip.vehicle.model }} {{ trip.vehicle.color }}
-                </p>
-                <p>
-                    <ion-icon name="body-outline"></ion-icon>
-                    Capacidad: {{ (trip.passengers?.length || 0) + 1 }}/{{ trip.vehicle.capacity }}
-                </p>
-            </ion-label>
-            <ion-button fill="clear" slot="end" (click)="viewTrip(trip)">
-                <ion-icon name="chevron-forward-outline"></ion-icon>
-            </ion-button>
-        </ion-item>
+    <ion-item>
+      <ion-icon name="car-sport-outline" size="large" color="dark" slot="start"></ion-icon>
+      <ion-label class="ion-padding ion-text-capitalize">
+        <h2 class="ellipsis">
+          <ion-icon name="golf-outline"></ion-icon>
+          {{ getMainLocality(trip.destination.name) }}
+        </h2>
+        <p class="ellipsis">
+          <ion-icon name="location-outline"></ion-icon>
+          {{ trip.origin.name }}
+        </p>
+        <p>
+          <ion-icon name="person-outline"></ion-icon>
+          {{ trip.driver.firstName }} {{ trip.driver.lastName }}
+        </p>
+        <p>
+          <ion-icon name="car-sport-outline"></ion-icon>
+          {{ trip.vehicle.brand }} {{ trip.vehicle.model }} {{
+          trip.vehicle.color }}
+        </p>
+        <p>
+          <ion-icon name="body-outline"></ion-icon>
+          Capacidad: {{ (trip.passengers?.length || 0) + 1 }}/{{
+          trip.vehicle.capacity }}
+        </p>
+      </ion-label>
+      <ion-button fill="clear" slot="end" (click)="viewTrip(trip)">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
     }
-</ion-list>
+  </ion-list>
+  } @else {
+    <div class="no-rides">
+      <ion-text class="ion-padding">
+        <h2 class="ion-text-center">No hay viajes por el momento.</h2>
+      </ion-text>
+    </div>
+  }
+</ion-content>

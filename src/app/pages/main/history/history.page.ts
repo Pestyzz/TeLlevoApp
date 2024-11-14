@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonItem, IonButton, 
-  IonIcon, IonList, IonAvatar, IonLabel, IonText } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonItem, 
+  IonIcon, IonList, IonLabel, IonText } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth.service';
 import { TripService } from 'src/app/services/trip.service';
 import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
 import { addIcons } from 'ionicons';
-import { carSportOutline, golfOutline, locationOutline, personOutline } from 'ionicons/icons';
+import { carSportOutline, golfOutline, locationOutline, personOutline, time } from 'ionicons/icons';
 
 @Component({
   selector: 'app-history',
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   standalone: true,
-  imports: [IonLabel, IonList, IonIcon, IonItem, IonContent, IonHeader, IonTitle, IonToolbar, 
+  imports: [IonText, IonLabel, IonList, IonIcon, IonItem, IonContent, IonHeader, IonTitle, IonToolbar, 
     CommonModule, FormsModule]
 })
 export class HistoryPage implements OnInit {
@@ -22,7 +22,7 @@ export class HistoryPage implements OnInit {
   activeProfile: 'passenger' | 'driver' | null = null;
 
   constructor(private authService: AuthService, private tripService: TripService) { 
-    addIcons({carSportOutline,golfOutline,locationOutline,personOutline});
+    addIcons({time,carSportOutline,golfOutline,locationOutline,personOutline});
   }
 
   ngOnInit() {

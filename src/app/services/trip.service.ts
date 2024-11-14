@@ -39,6 +39,11 @@ export class TripService {
     }
   }
 
+  cancelTrip(driverUid: string) {
+    const tripRef = ref(this.database, `trip/${driverUid}`);
+    remove(tripRef);
+  }
+
   isTripStarted() {
     return this.tripStarted;
   }

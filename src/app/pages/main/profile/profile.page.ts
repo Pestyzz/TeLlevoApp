@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { IonAvatar, IonList, IonItem, IonLabel, IonText, IonButton, 
   AlertController, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { arrowBackOutline, person, trashOutline, addOutline, addCircleOutline, createOutline, logOutOutline } from 'ionicons/icons';
+import { arrowBackOutline, person, trashOutline, addOutline, addCircleOutline, createOutline, 
+  logOutOutline } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserInterface } from 'src/app/interfaces/user.interface';
 import { RutFormatPipe } from 'src/app/pipes/rut-format.pipe';
