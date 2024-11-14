@@ -41,7 +41,6 @@ export class MapComponent implements OnInit, OnDestroy {
   tripPublished = false;
   tripStarted = false;
   tripInfoMinimized = false;
-  requestSent = false;
 
   constructor(private authService: AuthService, private database: Database, private router: Router, 
     private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
@@ -295,9 +294,8 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     const tripRef = ref(this.database, `trip/${this.authService.firebaseAuth.currentUser?.uid}`);
     update(tripRef, { status: 'started' })
-    // localStorage.setItem('currentTrip', JSON.stringify(this.tripInfo));
     this.tripStarted = true;
-    this.tripService.startTrip();
+    this.tripService.startTrip(this.tripInfo?.driver.uid!);
     this.router.navigate(['/main/map']);
   }
 
@@ -307,11 +305,13 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     const driverUid = this.authService.firebaseAuth.currentUser?.uid;
     const tripRef = ref(this.database, `trip/${driverUid!}`);
-    update(tripRef, { status: 'completed' }).then(() => {
+    update(tripRef, { status: 'completed', completed: true }).then(() => {
       localStorage.removeItem('tripInfo');
+      // this.requestSent = false;
     });
     this.tripStarted = false;
     this.tripService.completeTrip(driverUid!);
+    this.tripService.addCompletedTrip(this.tripInfo);
     this.tripPublished = false;
     this.tripInfo = null;
     this.directionsRenderer.set('directions', null);
@@ -433,16 +433,16 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.requestSent) {
-      const alert = await this.alertController.create({
-        header: 'Solicitud ya enviada',
-        message: 'Ya has enviado una solicitud para unirte a este viaje.',
-        buttons: ['OK']
-      });
+    // if (this.requestSent) {
+    //   const alert = await this.alertController.create({
+    //     header: 'Solicitud ya enviada',
+    //     message: 'Ya has enviado una solicitud para unirte a este viaje.',
+    //     buttons: ['OK']
+    //   });
 
-      await alert.present();
-      return;
-    }
+    //   await alert.present();
+    //   return;
+    // }
 
     try {
       await this.tripService.requestToJoinTrip(this.tripInfo.driver.uid, {
@@ -454,7 +454,7 @@ export class MapComponent implements OnInit, OnDestroy {
         phone: currentUser.phone
       });
 
-      this.requestSent = true;
+      // this.requestSent = true;
 
       const alert = await this.alertController.create({
         header: 'Solicitud enviada',
@@ -463,6 +463,7 @@ export class MapComponent implements OnInit, OnDestroy {
       });
 
       await alert.present();
+      this.cdr.detectChanges();
     } catch (error) {
       console.error('Error sending join request:', error);
     }
@@ -470,7 +471,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   async handleJoinRequest(request: any) {
     const driverName = `${this.tripInfo?.driver.firstName} ${this.tripInfo?.driver.lastName}`;
-
+  
     const alert = await this.alertController.create({
       header: 'Solicitud de pasajero',
       message: `${request.firstName} ${request.lastName} desea unirse a tu viaje.`,
@@ -482,6 +483,8 @@ export class MapComponent implements OnInit, OnDestroy {
             try {
               await this.tripService.rejectPassenger(this.tripInfo?.driver.uid!, request.uid, driverName);
               await this.updateNotificationHandledStatus(this.tripInfo?.driver.uid!, request.notificationKey);
+              // this.requestSent = false;
+              this.cdr.detectChanges();
               console.log('Join request rejected');
             } catch (error) {
               console.error('Error rejecting join request:', error);
@@ -495,6 +498,7 @@ export class MapComponent implements OnInit, OnDestroy {
               await this.tripService.addPassengerToTrip(this.tripInfo?.driver.uid!, request, driverName);
               await this.updateNotificationHandledStatus(this.tripInfo?.driver.uid!, request.notificationKey);
               this.tripInfo?.passengers.push(request);
+              // this.requestSent = false;
               this.cdr.detectChanges();
             } catch (error) {
               console.error('Error adding passenger to trip:', error);
@@ -505,10 +509,6 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   
     await alert.present();
-
-    // setTimeout(() => {
-    //   alert.dismiss();
-    // }, 5000); 
   }
 
   async handlePassengerNotification(notification: any) {

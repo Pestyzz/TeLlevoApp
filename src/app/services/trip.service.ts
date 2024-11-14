@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Database, get, off, onValue, ref, set, update } from '@angular/fire/database';
+import { Database, get, off, onValue, ref, remove, set, update } from '@angular/fire/database';
 import { BehaviorSubject } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { addDoc, collection, Firestore, getDocs, query, where } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -13,19 +14,29 @@ export class TripService {
   
   private joinRequestsRef: any;
 
-  constructor(private database: Database, private notificationService: NotificationService) { 
+  constructor(private database: Database, private firestore: Firestore, private notificationService: NotificationService) { 
     this.listenForTrips();
   }
 
-  startTrip() {
-    this.tripStarted = true;
+  startTrip(driverUid: string) {
+    const tripRef = ref(this.database, `trip/${driverUid}`);
+    update(tripRef, { status: 'started' });
   }
 
-  completeTrip(driverUid: string) {
+  async completeTrip(driverUid: string) {
     const tripRef = ref(this.database, `trip/${driverUid}`);
-    update(tripRef, { completed: true }).then(() => {
-      localStorage.removeItem('tripInfo'); // Limpiar los datos del viaje de localStorage
-    });
+    const snapshot = await get(tripRef);
+    if (snapshot.exists()) {
+      const trip = snapshot.val();
+      if (trip.passengers) {
+        for (const passenger of trip.passengers) {
+          await this.notificationService.notifyPassenger(passenger.uid, 'El viaje ha finalizado.');
+        }
+      }
+      await update(tripRef, { completed: true });
+      await remove(tripRef);
+      localStorage.removeItem('tripInfo'); // Limpiar los datos del viaje de localStorage para el conductor
+    }
   }
 
   isTripStarted() {
@@ -81,7 +92,7 @@ export class TripService {
 
   async rejectPassenger(driverUid: string, passengerUid: string, driverName: string) {
     const requestRef = ref(this.database, `trip/${driverUid}/requests/${passengerUid}`);
-    await set(requestRef, null);
+    await remove(requestRef);
     await this.notificationService.notifyPassenger(passengerUid, `${driverName} ha rechazado tu solicitud de unirte a su viaje.`);
   }
 
@@ -112,8 +123,11 @@ export class TripService {
       await update(tripRef, { passengers: trip.passengers });
       await this.notificationService.notifyPassenger(passenger.uid, `${driverName} ha aceptado tu solicitud de unirte a su viaje!`);
       localStorage.setItem('tripInfo', JSON.stringify(trip));
+
+      const requestRef = ref(this.database, `trip/${driverUid}/requests/${passenger.uid}`);
+      await remove(requestRef);
       // Marcar la notificación como manejada
-      await this.notificationService.markAllNotificationsAsHandled(driverUid);
+      await this.notificationService.markNotificationAsHandled(driverUid);
     }
   }
 
@@ -132,27 +146,30 @@ export class TripService {
     return null;
   }
 
+  async addCompletedTrip(trip: any) {
+    const tripsCollection = collection(this.firestore, 'completedTrips');
+    await addDoc(tripsCollection, trip);
+  }
+
   async getCompletedTrips(userUid: string, isDriver: boolean): Promise<any[]> {
-    const tripRef = ref(this.database, `trip`);
-    const snapshot = await get(tripRef);
-    const completedTrips = [];
-  
-    if (snapshot.exists()) {
-      const trips = snapshot.val();
-      for (const tripId in trips) {
-        const trip = trips[tripId];
-        if (trip.status === 'completed') {
-          if (isDriver && trip.driver.uid === userUid) {
-            completedTrips.push(trip);
-            console.log('Driver trip:', trip);
-          } else if (!isDriver && trip.passengers && trip.passengers.some((p: any) => p.uid === userUid)) {
-            completedTrips.push(trip);
-            console.log('Passenger trip:', trip);
-          }
+    const tripsCollection = collection(this.firestore, 'completedTrips');
+    const q = query(tripsCollection);
+    const querySnapshot = await getDocs(q);
+    const completedTrips: any[] = [];
+    querySnapshot.forEach((doc) => {
+      const trip = doc.data();
+      if (isDriver) {
+        if (trip['driver'].uid === userUid) {
+          completedTrips.push(trip);
+        }
+      } else {
+        // Filtrar los pasajeros en el lado del cliente
+        const passengerFound = trip['passengers'].some((p: any) => p.uid === userUid);
+        if (passengerFound) {
+          completedTrips.push(trip);
         }
       }
-    }
-    
+    });
     return completedTrips;
   }
 }

@@ -34,8 +34,7 @@ export class HistoryPage implements OnInit {
     const currentUser = this.authService.currentUserSig();
     if (currentUser) {
       const isDriver = this.activeProfile === 'driver';
-      const completedTrips = await this.tripService.getCompletedTrips(currentUser.uid, isDriver);
-      this.history = [...this.history, ...completedTrips];
+      this.history = await this.tripService.getCompletedTrips(currentUser.uid, isDriver);
     }
   }
 

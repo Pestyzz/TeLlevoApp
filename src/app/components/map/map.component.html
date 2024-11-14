@@ -53,7 +53,7 @@
                 <ion-button expand="block" fill="solid" shape="round" color="primary" (click)="handleButtonClick()" [class.complete-button]="tripStarted">
                     {{ getButtonLabel() }}
                 </ion-button>
-            } @else {
+            } @else if (activeProfile === 'passenger') {
                 <ion-button expand="full" fill="solid" shape="round" color="dark" (click)="navigateToRides()" [class.ion-hide]="tripStarted">
                     Lista de Viajes
                 </ion-button>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Database, ref, set, push, onValue } from '@angular/fire/database';
+import { Database, ref, set, push, onValue, get, update } from '@angular/fire/database';
 
 @Injectable({
   providedIn: 'root'
@@ -47,17 +47,19 @@ export class NotificationService {
     });
   }
 
-  markAllNotificationsAsHandled(userUid: string) {
+  async markNotificationAsHandled(userUid: string) {
     const notificationsRef = ref(this.database, `notifications/${userUid}`);
-    onValue(notificationsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const updates: any = {};
-        snapshot.forEach((childSnapshot) => {
-          updates[childSnapshot.key] = { ...childSnapshot.val(), handled: true };
-        });
-        set(notificationsRef, updates);
-      }
-    });
+    const snapshot = await get(notificationsRef);
+    if (snapshot.exists()) {
+      const updates: any = {};
+      snapshot.forEach((childSnapshot) => {
+        const notification = childSnapshot.val();
+        if (!notification.handled) {
+          updates[childSnapshot.key] = { ...notification, handled: true };
+        }
+      });
+      await update(notificationsRef, updates);
+    }
   }
 
   async notifyPassenger(passengerUid: string, message: string) {

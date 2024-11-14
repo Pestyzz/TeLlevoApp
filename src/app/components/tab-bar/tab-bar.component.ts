@@ -50,7 +50,7 @@ export class TabBarComponent implements OnInit {
   markNotificationsAsHandled() {
     const currentUser = this.authService.currentUserSig();
     if (currentUser) {
-      this.notificationService.markAllNotificationsAsHandled(currentUser.uid);
+      this.notificationService.markNotificationAsHandled(currentUser.uid);
       this.newNotificationsCount = 0;
     }
   }
