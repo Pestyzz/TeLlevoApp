@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
    updateProfile, user, updatePassword} from '@angular/fire/auth';
 import { Firestore, deleteDoc, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore';
-import { from, Observable } from 'rxjs';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 import { UserInterface } from '../interfaces/user.interface';
 import { VehicleInterface } from '../interfaces/vehicle.interface';
 
@@ -12,6 +12,8 @@ import { VehicleInterface } from '../interfaces/vehicle.interface';
 export class AuthService {
   firebaseAuth = inject(Auth);
   firestore = inject(Firestore);
+  private authStateSubject = new BehaviorSubject<'registered' | 'loggedIn' | null>(null);
+  authState$ = this.authStateSubject.asObservable();
   user$ = user(this.firebaseAuth);
   currentUserSig = signal<UserInterface | null | undefined>(undefined);
   vehicleSig = signal<VehicleInterface | null | undefined>(undefined);
@@ -58,6 +60,8 @@ export class AuthService {
             }
             this.setActiveProfile(activeProfile);
           }
+
+          this.authStateSubject.next('loggedIn');
         }
     })
     .catch(error => {
@@ -88,6 +92,7 @@ export class AuthService {
       throw new Error(error.code);
     });
 
+    this.authStateSubject.next('registered');
     return from(promise);
   }
 
@@ -106,6 +111,7 @@ export class AuthService {
       this.clearCurrentUser();
       this.clearActiveProfile();
       this.clearVehicle();
+      this.authStateSubject.next(null);
     });
   }
 

@@ -29,6 +29,17 @@ export class TabBarComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateFabButton();
+
+    const currentUser = this.authService.currentUserSig();
+    if (currentUser) {
+      this.notificationService.listenForNewNotifications(currentUser.uid, (count) => {
+        this.newNotificationsCount = count;
+      });
+    }
+  }
+
+  updateFabButton() {
     this.activeProfile = this.authService.getActiveProfile();
 
     if (this.activeProfile === 'driver') {
@@ -37,13 +48,6 @@ export class TabBarComponent implements OnInit {
     } else {
       this.fabButtonLink = '/main/rides';
       this.fabButtonIcon = 'car';
-    }
-
-    const currentUser = this.authService.currentUserSig();
-    if (currentUser) {
-      this.notificationService.listenForNewNotifications(currentUser.uid, (count) => {
-        this.newNotificationsCount = count;
-      });
     }
   }
 

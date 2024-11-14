@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonItem, IonSelect, IonSelectOption, 
@@ -20,6 +20,8 @@ import { TabBarComponent } from '../../components/tab-bar/tab-bar.component';
     IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, TabBarComponent],
 })
 export class MainPage implements OnInit {
+  @ViewChild(TabBarComponent) tabBarComponent!: TabBarComponent;
+
   activeProfile: 'passenger' | 'driver' | null = null;
   isPassenger = false;
   isDriver = false;
@@ -66,8 +68,17 @@ export class MainPage implements OnInit {
   }
 
   changeProfile(profile: 'passenger' | 'driver') {
+    localStorage.removeItem('tripInfo');
     this.activeProfile = profile;
     this.authService.setActiveProfile(profile);
+
+    this,this.isPassenger = profile === 'passenger';
+    this.isDriver = profile === 'driver';
+
+    if (this.tabBarComponent) {
+      this.tabBarComponent.updateFabButton();
+    }
+
     this.router.navigate([profile === 'driver' ? '/main/map' : '/main/rides']);
   }
 
