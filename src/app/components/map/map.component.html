@@ -60,7 +60,10 @@
                 <ion-button expand="full" fill="solid" shape="round" color="primary" (click)="requestToJoinTrip()" [class.complete-button]="tripStarted">
                     Solicitar Unirse
                 </ion-button>
-            }   
+            }
+            <ion-button (click)="startChat()">
+                <ion-icon slot="icon-only" name="chatbox-ellipses-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-card>
 }

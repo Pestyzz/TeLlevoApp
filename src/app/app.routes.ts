@@ -61,12 +61,18 @@ export const routes: Routes = [
         canActivate: [driverGuard]
       },
       {
+        path: 'chat/:chatId',
+        loadComponent: () => import('./pages/main/chat/chat.page').then( m => m.ChatPage)
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage),
         canActivate: [driverGuard]
       }
     ]
   },
+
+
 
   // {
   //   path: 'close-vehicles',

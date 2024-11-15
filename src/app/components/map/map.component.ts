@@ -8,11 +8,12 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { TripInterface } from 'src/app/interfaces/trip.interface';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, 
-  IonList, IonIcon, IonButtons } from "@ionic/angular/standalone";
+  IonList, IonIcon, IonButtons, IonBadge } from "@ionic/angular/standalone";
 import { addIcons } from 'ionicons';
-import { locationOutline, golfOutline, timeOutline, cashOutline, arrowUpOutline, closeOutline, speedometerOutline, add } from 'ionicons/icons';
+import { locationOutline, golfOutline, timeOutline, cashOutline, arrowUpOutline, closeOutline, speedometerOutline, add, chatbubblesOutline, chatboxEllipsesOutline } from 'ionicons/icons';
 import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
 import { TripService } from 'src/app/services/trip.service';
+import { ChatService } from 'src/app/services/chat.service';
 
 declare var google: any;
 
@@ -22,7 +23,7 @@ declare var google: any;
   styleUrls: ['./map.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [IonButtons, IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
+  imports: [IonBadge, IonButtons, IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
     PriceFormatPipe]
 })
 export class MapComponent implements OnInit, OnDestroy {
@@ -43,9 +44,12 @@ export class MapComponent implements OnInit, OnDestroy {
   tripInfoMinimized = false;
   isInTrip = false;
 
+  unreadMessagesCount = 0;
+
   constructor(private authService: AuthService, private database: Database, private router: Router, 
-    private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService) {
-      addIcons({locationOutline,golfOutline,speedometerOutline,timeOutline,cashOutline,add,closeOutline,arrowUpOutline});
+    private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService,
+    private chatService: ChatService) {
+      addIcons({locationOutline,golfOutline,speedometerOutline,timeOutline,cashOutline,chatboxEllipsesOutline,chatbubblesOutline,add,closeOutline,arrowUpOutline});
       this.activeProfile = this.authService.getActiveProfile();
   }
 
@@ -548,5 +552,23 @@ export class MapComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     }
     console.log('Is in trip:', this.isInTrip);
+  }
+
+  //Chat
+  async startChat() {
+    if (!this.tripInfo) {
+      console.error('Trip information is missing');
+      return;
+    }
+
+    const driverUid = this.tripInfo.driver.uid;
+    const message = 'Hola! Me gustaría unirme a tu viaje. ¿Hay espacio disponible?';
+
+    try {
+      await this.chatService.createOrUpdateChat(driverUid, message);
+      this.router.navigate(['/main/messages']);
+    } catch (error) {
+      console.error('Error starting chat:', error);
+    }
   }
 }

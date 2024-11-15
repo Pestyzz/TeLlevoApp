@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-title>{{ chatName }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="tertiary">
+  <ion-list>
+    @for (message of messages; track $index) {
+      <div [class.message-sent]="message.sender === currentUserUid" [class.message-received]="message.sender !== currentUserUid">
+        <ion-item>
+          <ion-label>
+            <h2>{{ getUserName(message.sender) }}</h2>
+            <p>{{ message.message }}</p>
+            <p class="message-time">{{ message.timestamp | date: 'HH:mm' }}</p>
+          </ion-label>
+        </ion-item>
+      </div>
+    }
+  </ion-list>
+
+</ion-content>
+
+<ion-footer >
+  <ion-toolbar color="tertiary" class="footer-toolbar">
+    <ion-input class="message-input" [(ngModel)]="newMessage" color="primary" placeholder="Escribe un mensaje..."></ion-input>
+    <ion-button class="send-button" color="primary" shape="round" slot="end" (click)="sendMessage()">
+      <ion-icon name="paper-plane"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
+

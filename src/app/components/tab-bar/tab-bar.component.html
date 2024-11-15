@@ -22,8 +22,11 @@
       </path>
     </svg>
 
-    <ion-tab-button tab="messages" class="messages" [routerLink]="['/main/map']">
+    <ion-tab-button tab="messages" class="messages" [routerLink]="['/main/messages']">
       <ion-icon name="chatbubbles"></ion-icon>
+      @if (newMessagesCount > 0) {
+        <ion-badge color="danger">{{ newMessagesCount }}</ion-badge>
+      }
     </ion-tab-button>
 
     <ion-tab-button tab="profile" class="profile" [routerLink]="['/main/profile']">

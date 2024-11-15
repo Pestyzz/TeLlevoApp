@@ -4,9 +4,10 @@ import { car, chatbubbles, flame, logOutOutline, notifications, person, map, sea
   stopwatchOutline, time } from 'ionicons/icons';
 import { IonTabs, IonFab, IonFabButton, IonIcon, IonTabButton, IonTabBar, 
   IonBadge } from "@ionic/angular/standalone";
-import { RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { NotificationService } from 'src/app/services/notification.service';
+import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
   selector: 'app-tab-bar',
@@ -22,8 +23,10 @@ export class TabBarComponent implements OnInit {
   fabButtonIcon = 'map';
 
   newNotificationsCount = 0;
+  newMessagesCount = 0;
 
-  constructor(private authService: AuthService, private notificationService: NotificationService) {
+  constructor(private authService: AuthService, private notificationService: NotificationService, 
+    private chatService: ChatService, private router: Router) {
     addIcons({car,notifications,time,map,person,refreshOutline,stopwatchOutline,logOutOutline,flame,
       search,chatbubbles,menu});
   }
@@ -35,6 +38,21 @@ export class TabBarComponent implements OnInit {
     if (currentUser) {
       this.notificationService.listenForNewNotifications(currentUser.uid, (count) => {
         this.newNotificationsCount = count;
+      });
+
+      this.chatService.listenForNewMessages(currentUser.uid, (count) => {
+        this.newMessagesCount = count;
+      });
+
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationEnd && event.url === '/main/messages') {
+          this.newMessagesCount = 0;
+          this.chatService.getChats(currentUser.uid).subscribe(chats => {
+            chats.forEach(chat => {
+              this.chatService.markMessagesAsRead(chat.id, currentUser.uid);
+            });
+          });
+        }
       });
     }
   }
