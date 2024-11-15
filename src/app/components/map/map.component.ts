@@ -70,6 +70,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const navigation = this.router.getCurrentNavigation();
   
     if (this.activeProfile === 'passenger') {
+      this.listenForTripCompletion();
       this.checkCurrentTrip();
       if (navigation?.extras.state) {
         this.tripInfo = navigation.extras.state['trip'];
@@ -441,17 +442,6 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // if (this.requestSent) {
-    //   const alert = await this.alertController.create({
-    //     header: 'Solicitud ya enviada',
-    //     message: 'Ya has enviado una solicitud para unirte a este viaje.',
-    //     buttons: ['OK']
-    //   });
-
-    //   await alert.present();
-    //   return;
-    // }
-
     try {
       await this.tripService.requestToJoinTrip(this.tripInfo.driver.uid, {
         uid: currentUser.uid,
@@ -461,8 +451,6 @@ export class MapComponent implements OnInit, OnDestroy {
         email: currentUser.email,
         phone: currentUser.phone
       });
-
-      // this.requestSent = true;
 
       const alert = await this.alertController.create({
         header: 'Solicitud enviada',
@@ -506,7 +494,6 @@ export class MapComponent implements OnInit, OnDestroy {
               await this.tripService.addPassengerToTrip(this.tripInfo?.driver.uid!, request, driverName);
               await this.updateNotificationHandledStatus(this.tripInfo?.driver.uid!, request.notificationKey);
               this.tripInfo?.passengers.push(request);
-              // this.requestSent = false;
               this.cdr.detectChanges();
             } catch (error) {
               console.error('Error adding passenger to trip:', error);
@@ -553,6 +540,21 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     console.log('Is in trip:', this.isInTrip);
   }
+
+  listenForTripCompletion() {
+    const currentUser = this.authService.currentUserSig();
+    if (currentUser) {
+      this.tripService.listenForPassengerNotifications(currentUser.uid, (notifications) => {
+        notifications.forEach(notification => {
+          if (notification.message === 'El viaje ha finalizado.') {
+            this.router.navigate(['/main/rides']);
+            this.cdr.detectChanges();
+          }
+        });
+      });
+    }
+  }
+
 
   //Chat
   async startChat() {

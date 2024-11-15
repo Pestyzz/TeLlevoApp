@@ -3,6 +3,7 @@ import { Database, get, off, onValue, ref, remove, set, update } from '@angular/
 import { BehaviorSubject } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { addDoc, collection, Firestore, getDocs, query, where } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class TripService {
   
   private joinRequestsRef: any;
 
-  constructor(private database: Database, private firestore: Firestore, private notificationService: NotificationService) { 
+  constructor(private database: Database, private firestore: Firestore, 
+    private notificationService: NotificationService, private router: Router) { 
     this.listenForTrips();
   }
 
