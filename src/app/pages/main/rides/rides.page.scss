@@ -1,0 +1,70 @@
+ion-header {
+    border: 1px solid var(--ion-color-tertiary-shade);
+    box-shadow: none;
+}
+  
+ion-title {
+    font-family: var(--nexa-heavy);
+    font-size: 1.5rem;
+}
+
+ion-content {
+    padding-bottom: 70px;
+}
+
+ion-list {
+    --ion-item-background: var(--ion-color-tertiary);
+    --ion-item-color: var(--ion-color-dark);
+    --ion-item-border-color: var(--ion-color-tertiary-shade);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+ion-item {
+    --background: var(--ion-color-light);
+    --color: var(--ion-color-dark);
+    --border-color: var(--ion-color-light-shade);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+ion-icon {
+    margin-right: 2px;
+}
+
+ion-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+ion-label h2 {
+    font-family: var(--nexa-heavy);
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    
+}
+
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-button {
+    height: 100%;
+    padding: 10px 0;
+}
+
+.no-rides {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-family: var(--nexa-extra-light);
+    color: var(--ion-color-medium);
+    font-size: 1.2em;
+  }

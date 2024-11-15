@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { driverGuard } from './guards/driver.guard';
+import { passengerGuard } from './guards/passenger.guard';
 
 export const routes: Routes = [
   {
@@ -31,27 +33,50 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'map',
-    loadComponent: () => import('./pages/map-screen/map-screen.page').then(m => m.MapScreenPage)
+    path: 'main',
+    loadComponent: () => import('./pages/main/main.page').then(m => m.MainPage),
+    children: [
+      {
+        path: 'notifications',
+        loadComponent: () => import('./pages/main/notifications/notifications.page').then(m => m.NotificationsPage),
+        canActivate: [driverGuard]
+      },
+      {
+        path: 'history',
+        loadComponent: () => import('./pages/main/history/history.page').then(m => m.HistoryPage),
+        canActivate: [driverGuard]
+      },
+      {
+        path: 'map',
+        loadComponent: () => import('./pages/main/map-screen/map-screen.page').then(m => m.MapScreenPage),
+      },
+      {
+        path: 'rides',
+        loadComponent: () => import('./pages/main/rides/rides.page').then( m => m.RidesPage),
+        canActivate: [passengerGuard]
+      },
+      {
+        path: 'messages',
+        loadComponent: () => import('./pages/main/messages/messages.page').then( m => m.MessagesPage),
+        canActivate: [driverGuard]
+      },
+      {
+        path: 'chat/:chatId',
+        loadComponent: () => import('./pages/main/chat/chat.page').then( m => m.ChatPage)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/main/profile/profile.page').then(m => m.ProfilePage),
+        canActivate: [driverGuard]
+      }
+    ]
   },
-  {
-    path: 'notifications',
-    loadComponent: () => import('./pages/notifications/notifications.page').then(m => m.NotificationsPage)
-  },
-  {
-    path: 'profile',
-    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
-  },
-  {
-    path: 'close-vehicles',
-    loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
-  },
-  {
-    path: 'test',
-    loadComponent: () => import('./pages/test-map/test-map.page').then(m => m.TestMapPage)
-  },
-  {
-    path: 'history',
-    loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage)
-  }
+
+
+
+  // {
+  //   path: 'close-vehicles',
+  //   loadComponent: () => import('./pages/close-vehicles/close-vehicles.page').then(m => m.CloseVehiclesPage)
+  // },
+
 ];

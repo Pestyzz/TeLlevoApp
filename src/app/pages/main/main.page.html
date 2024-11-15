@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-start">
+      <span class="title-part1">TeLlevo</span>
+      <span class="title-part2">APP</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      @if (showDropdown()) {
+        <ion-item>
+          <ion-select label="Cambiar Perfil" labelPlacement="fixed" [(ngModel)]="activeProfile" 
+          (ionChange)="changeProfile($event.detail.value)">
+            @if (isPassenger) {
+              <ion-select-option value="driver">Conductor</ion-select-option>
+            } @else if (isDriver) {
+              <ion-select-option value="passenger">Pasajero</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="tertiary">
+  <ion-router-outlet></ion-router-outlet>
+  <app-tab-bar></app-tab-bar>
+</ion-content>

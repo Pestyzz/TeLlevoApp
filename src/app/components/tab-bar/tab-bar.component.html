@@ -1,30 +1,36 @@
-<ion-footer>
-  <ion-tabs>
-    <ion-fab vertical="bottom" horizontal="center" translucent="true">
-      <ion-fab-button color="primary">
-        <ion-icon name="car"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
+<ion-tabs>
+  <ion-fab vertical="bottom" horizontal="center" translucent="true">
+    <ion-fab-button color="primary" [routerLink]="[fabButtonLink]">
+      <ion-icon [name]="fabButtonIcon"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
-    <ion-tab-bar slot="bottom" class="ion-no-border">
-      <ion-tab-button tab="notifications" class="notifications" [routerLink]="['/notifications']">
-        <ion-icon name="notifications"></ion-icon>
-        <ion-badge *ngIf="notificationCount > 0" color="primary" mode="ios">{{ notificationCount }}</ion-badge>
-      </ion-tab-button>
+  <ion-tab-bar slot="bottom" class="ion-no-border">
+    <ion-tab-button tab="notifications" class="notifications" [routerLink]="['/main/notifications']" (click)="markNotificationsAsHandled()">
+      <ion-icon name="notifications"></ion-icon>
+      @if (newNotificationsCount > 0){
+        <ion-badge color="danger">{{ newNotificationsCount }}</ion-badge>
+      }
+    </ion-tab-button>
 
-      <ion-tab-button tab="history" class="history" [routerLink]="['/history']">
-        <ion-icon name="time"></ion-icon>
-      </ion-tab-button>
-    
-      <svg height="50" viewBox="0 0 100 50" width="100" xmlns="http://www.w3.org/2000/svg"><path d="M100 0v50H0V0c.543 27.153 22.72 49 50 49S99.457 27.153 99.99 0h.01z" fill="red" fill-rule="evenodd"></path></svg>
-      
-      <ion-tab-button tab="" class="map" [routerLink]="['/map']">
-        <ion-icon name="map"></ion-icon>
-      </ion-tab-button>
-    
-      <ion-tab-button tab="profile" class="profile" [routerLink]="['/profile']">
-        <ion-icon name="person"></ion-icon>
-      </ion-tab-button>
-    </ion-tab-bar>
-  </ion-tabs>
-</ion-footer>
+    <ion-tab-button tab="history" class="history" [routerLink]="['/main/history']">
+      <ion-icon name="time"></ion-icon>
+    </ion-tab-button>
+
+    <svg height="50" viewBox="0 0 100 50" width="100" xmlns="http://www.w3.org/2000/svg">
+      <path d="M100 0v50H0V0c.543 27.153 22.72 49 50 49S99.457 27.153 99.99 0h.01z" fill="red" fill-rule="evenodd">
+      </path>
+    </svg>
+
+    <ion-tab-button tab="messages" class="messages" [routerLink]="['/main/messages']">
+      <ion-icon name="chatbubbles"></ion-icon>
+      @if (newMessagesCount > 0) {
+        <ion-badge color="danger">{{ newMessagesCount }}</ion-badge>
+      }
+    </ion-tab-button>
+
+    <ion-tab-button tab="profile" class="profile" [routerLink]="['/main/profile']">
+      <ion-icon name="person"></ion-icon>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

@@ -6,10 +6,23 @@
 	font-family: 'Branding SF Semi Bold';
 	src: url('../assets/fonts/branding-sf-semi-bold.ttf') format('truetype');
 }
+@font-face {
+	font-family: 'Nexa Extra Light';
+	src: url('../assets/fonts/Nexa-ExtraLight.ttf') format('truetype');
+}
+@font-face {
+	font-family: 'Nexa Heavy';
+	src: url('../assets/fonts/Nexa-Heavy.ttf') format('truetype');
+}
 
-// Color Palette
 :root {
+	// Fonts
+
 	--branding-font: 'Branding SF Semi Bold';
+	--nexa-extra-light: 'Nexa Extra Light';
+	--nexa-heavy: 'Nexa Heavy';
+
+	// Color Palette
 
 	--ion-color-primary: #ffb300;
     --ion-color-primary-rgb: 255,179,0;
@@ -73,5 +86,4 @@
 	--ion-color-dark-contrast-rgb: 255,255,255;
 	--ion-color-dark-shade: #292929;
 	--ion-color-dark-tint: #444444;
-
 }

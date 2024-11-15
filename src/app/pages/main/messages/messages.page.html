@@ -1,0 +1,34 @@
+<ion-header>
+    <ion-toolbar color="tertiary">
+      <ion-icon name="chatbubbles" color="primary" slot="start" size="large" class="ion-padding-start"></ion-icon>
+      <ion-title>Mensajes</ion-title>
+    </ion-toolbar>
+</ion-header>
+  
+<ion-content color="tertiary">
+  @if (chats.length > 0) {
+    <ion-list class="ion-margin ion-padding">
+      @for (chat of chats; track $index) {
+        <ion-item (click)="openChat(chat.id)">
+          <ion-icon name="person-outline" size="large" class="ion-padding-end" color="dark"></ion-icon>
+          <ion-label>
+            <h2>{{ getChatPartnerName(chat) }}</h2>
+            @if (chat.messages && chat.messages.length > 0) {
+              <p>{{ chat.messages[0].message }}</p>
+            } @else if (!chat.messages || chat.messages.length === 0) {
+              <p>No messages</p>
+            } @else {
+              <p>{{ getLastMessage(chat) }}</p>
+            }
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  } @else {
+    <div class="no-messages">
+      <ion-text class="ion-padding">
+        <h2 class="ion-text-center">No hay mensajes</h2>
+      </ion-text>
+    </div>
+  }
+</ion-content>

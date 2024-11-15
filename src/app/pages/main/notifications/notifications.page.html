@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-icon name="notifications" color="primary" slot="start" size="large" class="ion-padding-start"></ion-icon>
+    <ion-title>
+      Notificaciones
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="tertiary">
+  @if (notifications.length > 0) {
+    <ion-list class="ion-margin ion-padding">
+      @for (notification of notifications; track $index) {
+        <ion-item color="tertiary" [class.clickable]="notification.type === 'joinRequest' && !notification.handled" (click)="notification.type === 'joinRequest' && !notification.handled && handleNotification(notification)">
+          <ng-container [ngSwitch]="notification.type">
+            <ng-container *ngSwitchCase="'joinRequest'">
+              <ion-icon name="person-outline" size="large" class="ion-padding-end"></ion-icon>
+              <ion-label>
+                {{ notification.message }}
+              </ion-label>
+            </ng-container>
+            <ng-container *ngSwitchCase="'response'">
+              <ion-icon name="car-outline" size="large" class="ion-padding-end"></ion-icon>
+              <ion-label>
+                {{ notification.message }}
+              </ion-label>
+            </ng-container>
+          </ng-container>
+        </ion-item>
+      }
+    </ion-list>
+  } @else {
+    <div class="no-notifications">
+      <ion-text class="ion-padding">
+        <h2 class="ion-text-center">No hay notificaciones</h2>
+      </ion-text>
+    </div>
+  }
+</ion-content>

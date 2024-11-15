@@ -77,17 +77,13 @@
             <ion-input label="Teléfono (+56 9)" labelPlacement="floating" type="number" 
             formControlName="phone" required></ion-input>
           </ion-item>
-          <ion-item color="light">
-            <ion-input label="Fecha Nacimiento" labelPlacement="floating" type="date"
-            formControlName="birthdate" required></ion-input>
-          </ion-item>
           <div class="input-group">
             <ion-item color="light">
-              <ion-checkbox labelPlacement="floating" (ionChange)="onCheckboxChange('passenger')"
+              <ion-checkbox [(ngModel)]="checkboxes.passenger" labelPlacement="floating" (ionChange)="onCheckboxChange('passenger')"
               formControlName="passenger">Pasajero</ion-checkbox>
             </ion-item>
             <ion-item color="light">
-              <ion-checkbox labelPlacement="floating" (ionChange)="onCheckboxChange('driver')"
+              <ion-checkbox [(ngModel)]="checkboxes.driver" labelPlacement="floating" (ionChange)="onCheckboxChange('driver')"
               formControlName="driver">Conductor</ion-checkbox>
             </ion-item>
           </div>
