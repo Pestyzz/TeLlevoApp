@@ -29,7 +29,7 @@
         <ion-button type="submit" color="secondary" shape="round" fill="outline" 
         expand="full">Iniciar Sesión</ion-button>
       </form>
-      <ion-buttons>
+      <!-- <ion-buttons>
         <ion-button color="secondary" fill="outline" shape="round">
           <img src="assets/auth/logo-google.svg" alt="GoogleLogo">
           <span>Google</span>
@@ -38,7 +38,7 @@
           <img src="assets/auth/logo-facebook.svg" alt="GoogleLogo">
           <span>Facebook</span>
         </ion-button>
-      </ion-buttons>
+      </ion-buttons> -->
     }
     @if (currentForm === 'signup') {
       <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
@@ -90,7 +90,7 @@
         </ion-list>
         <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full">Registrarse</ion-button>
       </form>
-      <ion-buttons>
+      <!-- <ion-buttons>
         <ion-button color="secondary" fill="outline" shape="round">
           <img src="assets/auth/logo-google.svg" alt="GoogleLogo">
           <span>Google</span>
@@ -99,7 +99,7 @@
           <img src="assets/auth/logo-facebook.svg" alt="GoogleLogo">
           <span>Facebook</span>
         </ion-button>
-      </ion-buttons>
+      </ion-buttons> -->
     }
     @if (currentForm === 'forgot-password') {
       <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmit()">
