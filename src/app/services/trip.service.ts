@@ -146,10 +146,12 @@ export class TripService {
       for (const tripId in trips) {
         const trip = trips[tripId];
         if (trip.passengers && trip.passengers.some((p: any) => p.uid === passengerUid) && !trip.completed) {
+          localStorage.setItem('currentTrip', JSON.stringify(trip));
           return trip;
         }
       }
     }
+    localStorage.removeItem('currentTrip');
     return null;
   }
 
@@ -179,4 +181,6 @@ export class TripService {
     });
     return completedTrips;
   }
+
+
 }

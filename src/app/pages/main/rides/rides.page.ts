@@ -9,6 +9,7 @@ import { addIcons } from 'ionicons';
 import { carSportOutline, personOutline, locationOutline, golfOutline, chevronForwardOutline, 
   bodyOutline, notifications, car } from 'ionicons/icons';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-rides',
@@ -19,14 +20,16 @@ import { Router } from '@angular/router';
 })
 export class RidesPage implements OnInit, OnDestroy {
   availableTrips: any[] = [];
+  currentTrip: any = null;
   private tripsSubscription: Subscription | null = null;
 
-  constructor(private tripService: TripService, private router: Router) {
+  constructor(private tripService: TripService, private router: Router, private authService: AuthService) {
     addIcons({car,carSportOutline,golfOutline,locationOutline,personOutline,bodyOutline,
       chevronForwardOutline,notifications});
    }
 
   ngOnInit() {
+    this.loadCurrentTrip();
     this.tripsSubscription = this.tripService.trips$.subscribe(trips => {
       this.availableTrips = trips;
     });
@@ -35,6 +38,15 @@ export class RidesPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.tripsSubscription) {
       this.tripsSubscription.unsubscribe();
+    }
+  }
+
+  async loadCurrentTrip() {
+    const passengerUid = this.authService.currentUserSig()?.uid;
+    if (passengerUid) {
+      this.currentTrip = await this.tripService.getCurrentTrip(passengerUid);
+    } else {
+      console.error('Passenger UID is undefined');
     }
   }
 
