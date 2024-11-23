@@ -1,11 +1,8 @@
-<ion-header>
-  <ion-toolbar color="tertiary">
-    <ion-icon name="car" color="primary" slot="start" size="large" class="ion-padding-start"></ion-icon>
-    <ion-title>Viajes</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content color="tertiary">
+  <ion-item-divider color="teritary" class="header">
+    <ion-icon name="hourglass" color="primary" slot="start" size="large"></ion-icon>
+    <ion-title>Viaje en curso</ion-title>
+  </ion-item-divider>
   <ion-list class="ion-margin ion-padding">
     @if (currentTrip) {
       <ion-item>
@@ -38,8 +35,19 @@
           <ion-icon name="chevron-forward-outline"></ion-icon>
         </ion-button>
       </ion-item>
+    } @else {
+      <div class="no-rides">
+        <ion-text class="ion-padding">
+          <h2 class="ion-text-center">No hay viaje en curso.</h2>
+        </ion-text>
+      </div>
     }
   </ion-list>
+
+  <ion-item-divider color="tertiary" class="header">
+    <ion-icon name="car" color="primary" slot="start" size="large"></ion-icon>
+    <ion-title>Viajes disponibles</ion-title>
+  </ion-item-divider>
   @if (availableTrips.length > 0) {
   <ion-list class="ion-margin ion-padding">
     @for (trip of availableTrips; track $index) {

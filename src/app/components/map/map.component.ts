@@ -529,14 +529,18 @@ export class MapComponent implements OnInit, OnDestroy {
   async checkCurrentTrip() {
     const passengerUid = this.authService.firebaseAuth.currentUser?.uid;
     if (passengerUid) {
-      const currentTrip = await this.tripService.getCurrentTrip(passengerUid);
-      if (currentTrip) {
-        this.isInTrip = true;
-        this.tripInfo = currentTrip;
-      } else {
-        this.isInTrip = false;
-      }
-      this.cdr.detectChanges();
+      this.tripService.subscribeToCurrentTrip(passengerUid);
+      this.tripService.currentTrip$.subscribe(currentTrip => {
+        if (currentTrip) {
+          this.isInTrip = true;
+          this.tripInfo = currentTrip;
+        } else {
+          this.isInTrip = false;
+        }
+        this.cdr.detectChanges();
+      });
+    } else {
+      console.error('Passenger UID is undefined');
     }
     console.log('Is in trip:', this.isInTrip);
   }
@@ -544,14 +548,15 @@ export class MapComponent implements OnInit, OnDestroy {
   listenForTripCompletion() {
     const currentUser = this.authService.currentUserSig();
     if (currentUser) {
-      this.tripService.listenForPassengerNotifications(currentUser.uid, (notifications) => {
-        notifications.forEach(notification => {
-          if (notification.message === 'El viaje ha finalizado.') {
-            this.router.navigate(['/main/rides']);
-            this.cdr.detectChanges();
-          }
-        });
+      this.tripService.currentTrip$.subscribe(currentTrip => {
+        if (currentTrip && currentTrip.completed) {
+          this.isInTrip = false;
+          this.tripInfo = null;
+          this.cdr.detectChanges();
+        }
       });
+    } else {
+      console.error('Current user is undefined');
     }
   }
 

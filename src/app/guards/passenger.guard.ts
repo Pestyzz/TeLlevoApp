@@ -14,20 +14,24 @@ export const passengerGuard: CanActivateFn = async (route, state) => {
   const currentUser = authService.currentUserSig();
 
   if (activeProfile === 'passenger' && currentUser) {
-    const trip = await tripService.getCurrentTrip(currentUser.uid);
-    console.log('Trip:', trip);
-    if (trip && trip.status !== 'completed') {
-      const alert = await alertController.create({
-        header: 'Viaje en curso',
-        message: 'No puedes solicitar unirse a otro viaje mientras tienes un viaje en curso',
-        buttons: ['OK']
+    return new Promise<boolean>(resolve => {
+      tripService.subscribeToCurrentTrip(currentUser.uid);
+      tripService.currentTrip$.subscribe(async trip => {
+        if (trip && !trip.completed) {
+          const alert = await alertController.create({
+            header: 'Viaje en curso',
+            message: 'No puedes solicitar unirse a otro viaje mientras tienes un viaje en curso',
+            buttons: ['OK']
+          });
+
+          await alert.present();
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
-
-      await alert.present();
-      router.navigate(['/main/map']);
-      return false;
-    }
+    });
+  } else {
+    return true;
   }
-
-  return true;
 };
