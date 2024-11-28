@@ -70,6 +70,7 @@ export class AppComponent implements OnInit {
       this.isOnline = isOnline;
       this.notificationMessage = isOnline ? 'Conexión Establecida' : 'Sin Conexión';
       this.showNotification = true;
+      console.log('Network status:', this.isOnline);
       this.cdr.detectChanges();
 
       setTimeout(() => {
