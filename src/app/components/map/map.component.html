@@ -1,7 +1,7 @@
 <div #map id="map"></div>
 
-<ion-fab class="update-button" vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="this.loadMap()">
+<ion-fab class="update-button" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="this.loadMap()" [disabled]="tripInfo ? 'true' : 'false'">
         <ion-icon name="refresh-outline" size="large"></ion-icon>
     </ion-fab-button>
 </ion-fab>
@@ -45,6 +45,11 @@
                         </ion-input>
                     </ion-item>
                     <ion-item>
+                        <ion-input label="Capacidad" labelPlacement="stacked" value="{{ tripInfo.passengers ? tripInfo.passengers.length + 1 : 1 }}/{{ tripInfo.vehicle.capacity }}" readonly>
+                            <ion-icon name="people-outline" slot="start"></ion-icon>
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
                         <ion-input label="Precio" labelPlacement="stacked" value="{{ tripInfo.price | priceFormat }}" readonly>
                             <ion-icon name="cash-outline" slot="start"></ion-icon>
                         </ion-input>
@@ -73,7 +78,6 @@
                     <ion-icon slot="icon-only" name="chatbox-ellipses-outline"></ion-icon>
                 </ion-button>
             }
-            
         </ion-buttons>
     </ion-card>
 }

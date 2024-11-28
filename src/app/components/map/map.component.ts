@@ -12,7 +12,7 @@ import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput
 import { addIcons } from 'ionicons';
 import { locationOutline, golfOutline, timeOutline, 
   cashOutline, arrowUpOutline, closeOutline, speedometerOutline, add, 
-  chatbubblesOutline, chatboxEllipsesOutline, refreshOutline } from 'ionicons/icons';
+  chatbubblesOutline, chatboxEllipsesOutline, refreshOutline, peopleOutline } from 'ionicons/icons';
 import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
 import { TripService } from 'src/app/services/trip.service';
 import { ChatService } from 'src/app/services/chat.service';
@@ -59,20 +59,7 @@ export class MapComponent implements OnInit, OnDestroy {
     private chatService: ChatService,
     private refreshService: RefreshService
   ) {
-      addIcons(
-        {
-          refreshOutline,
-          locationOutline,
-          golfOutline,
-          speedometerOutline,
-          timeOutline,cashOutline,
-          chatboxEllipsesOutline,
-          chatbubblesOutline,
-          add,
-          closeOutline,
-          arrowUpOutline
-        }
-      );
+      addIcons({refreshOutline,locationOutline,golfOutline,speedometerOutline,timeOutline,peopleOutline,cashOutline,chatboxEllipsesOutline,chatbubblesOutline,add,closeOutline,arrowUpOutline});
       this.activeProfile = this.authService.getActiveProfile();
   }
 
