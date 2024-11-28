@@ -29,7 +29,7 @@
         <ion-button type="submit" color="secondary" shape="round" fill="outline" 
         expand="full">Iniciar Sesión</ion-button>
       </form>
-      <ion-buttons>
+      <!-- <ion-buttons>
         <ion-button color="secondary" fill="outline" shape="round">
           <img src="assets/auth/logo-google.svg" alt="GoogleLogo">
           <span>Google</span>
@@ -38,41 +38,35 @@
           <img src="assets/auth/logo-facebook.svg" alt="GoogleLogo">
           <span>Facebook</span>
         </ion-button>
-      </ion-buttons>
+      </ion-buttons> -->
     }
     @if (currentForm === 'signup') {
       <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
         <ion-list [inset]="false" class="signup-list">
-          <div class="input-group">
-            <ion-item color="light">
-              <ion-input label="Nombre" labelPlacement="floating" type="text"
-              formControlName="firstName" required></ion-input>
-            </ion-item>
-            <ion-item color="light">
-              <ion-input label="Apellido" labelPlacement="floating" type="text"
-              formControlName="lastName" required></ion-input>
-            </ion-item>
-          </div>
-          <div class="input-group">
-            <ion-item color="light" >
-              <ion-input label="RUT" labelPlacement="floating" placeholder="EJ: 1111111K" type="text"
-              formControlName="rut" required></ion-input>
-            </ion-item>
-            <ion-item color="light" >
-              <ion-input label="Correo Electrónico" labelPlacement="floating" type="email" 
-              formControlName="email" required></ion-input>
-            </ion-item>
-          </div>
-          <div class="input-group">
-            <ion-item color="light" >
-              <ion-input label="Contraseña" labelPlacement="floating" placeholder="Min 6 caracteres" type="password"
-              formControlName="password" required></ion-input>
-            </ion-item>
-            <ion-item color="light">
-              <ion-input label="Confirmar Contraseña" labelPlacement="floating" type="password"
-              formControlName="confirmPass" required></ion-input>
-            </ion-item>
-          </div>
+          <ion-item color="light">
+            <ion-input label="Nombre" labelPlacement="floating" type="text"
+            formControlName="firstName" required></ion-input>
+          </ion-item>
+          <ion-item color="light">
+            <ion-input label="Apellido" labelPlacement="floating" type="text"
+            formControlName="lastName" required></ion-input>
+          </ion-item>
+          <ion-item color="light" >
+            <ion-input label="RUT" labelPlacement="floating" placeholder="EJ: 1111111K" type="text"
+            formControlName="rut" required></ion-input>
+          </ion-item>
+          <ion-item color="light" >
+            <ion-input label="Correo Electrónico" labelPlacement="floating" type="email" 
+            formControlName="email" required></ion-input>
+          </ion-item>
+          <ion-item color="light" >
+            <ion-input label="Contraseña" labelPlacement="floating" placeholder="Min 6 caracteres" type="password"
+            formControlName="password" required></ion-input>
+          </ion-item>
+          <ion-item color="light">
+            <ion-input label="Confirmar Contraseña" labelPlacement="floating" type="password"
+            formControlName="confirmPass" required></ion-input>
+          </ion-item>
           <ion-item color="light">
             <ion-input label="Teléfono (+56 9)" labelPlacement="floating" type="number" 
             formControlName="phone" required></ion-input>
@@ -90,7 +84,7 @@
         </ion-list>
         <ion-button type="submit" color="secondary" shape="round" fill="outline" expand="full">Registrarse</ion-button>
       </form>
-      <ion-buttons>
+      <!-- <ion-buttons>
         <ion-button color="secondary" fill="outline" shape="round">
           <img src="assets/auth/logo-google.svg" alt="GoogleLogo">
           <span>Google</span>
@@ -99,7 +93,7 @@
           <img src="assets/auth/logo-facebook.svg" alt="GoogleLogo">
           <span>Facebook</span>
         </ion-button>
-      </ion-buttons>
+      </ion-buttons> -->
     }
     @if (currentForm === 'forgot-password') {
       <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmit()">

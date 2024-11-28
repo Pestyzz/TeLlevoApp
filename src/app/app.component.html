@@ -1,3 +1,6 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  @if (showNotification) {
+    <app-notification [isOnline]="isOnline" [message]="notificationMessage" [show]="showNotification"></app-notification>
+  }
 </ion-app>

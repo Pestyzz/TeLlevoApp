@@ -4,15 +4,26 @@ import { AuthService } from './services/auth.service';
 import { doc, getDoc } from '@angular/fire/firestore';
 import { UserInterface } from './interfaces/user.interface';
 import { Router } from '@angular/router';
+import { NetworkService } from './services/network.service';
+import { NotificationComponent } from "./components/notification/notification.component";
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet],
+  imports: [IonApp, IonRouterOutlet, NotificationComponent],
 })
 export class AppComponent implements OnInit {
-  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) {}
+  showNotification: boolean = false;
+  notificationMessage: string = '';
+  isOnline: boolean = true;
+
+  constructor(
+    private authService: AuthService, 
+    private router: Router, 
+    private cdr: ChangeDetectorRef, 
+    private networkService: NetworkService
+  ) {}
 
   ngOnInit(): void {
     this.authService.user$.subscribe(async user => {
@@ -53,6 +64,19 @@ export class AppComponent implements OnInit {
         this.authService.clearActiveProfile();
         this.router.navigate(['/auth/auth-screen']);
       }
+    });
+
+    this.networkService.isOnline.subscribe(isOnline => {
+      this.isOnline = isOnline;
+      this.notificationMessage = isOnline ? 'Conexión Establecida' : 'Sin Conexión';
+      this.showNotification = true;
+      console.log('Network status:', this.isOnline);
+      this.cdr.detectChanges();
+
+      setTimeout(() => {
+        this.showNotification = false;
+        this.cdr.detectChanges();
+      }, 4000);
     });
   }
 }

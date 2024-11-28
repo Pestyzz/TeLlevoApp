@@ -2,18 +2,21 @@ import { OnInit, Component, ElementRef, ViewChild, ViewEncapsulation,
   ChangeDetectorRef, 
   OnDestroy} from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Database, off, ref, set, update } from '@angular/fire/database';
+import { Database, ref, set, update } from '@angular/fire/database';
 import { Geolocation } from '@capacitor/geolocation';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { TripInterface } from 'src/app/interfaces/trip.interface';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, 
-  IonList, IonIcon, IonButtons, IonBadge } from "@ionic/angular/standalone";
+  IonList, IonIcon, IonButtons, IonFab, IonFabButton } from "@ionic/angular/standalone";
 import { addIcons } from 'ionicons';
-import { locationOutline, golfOutline, timeOutline, cashOutline, arrowUpOutline, closeOutline, speedometerOutline, add, chatbubblesOutline, chatboxEllipsesOutline } from 'ionicons/icons';
+import { locationOutline, golfOutline, timeOutline, 
+  cashOutline, arrowUpOutline, closeOutline, speedometerOutline, add, 
+  chatbubblesOutline, chatboxEllipsesOutline, refreshOutline, peopleOutline } from 'ionicons/icons';
 import { PriceFormatPipe } from 'src/app/pipes/price-format.pipe';
 import { TripService } from 'src/app/services/trip.service';
 import { ChatService } from 'src/app/services/chat.service';
+import { RefreshService } from 'src/app/services/refresh.service';
 
 declare var google: any;
 
@@ -23,7 +26,7 @@ declare var google: any;
   styleUrls: ['./map.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [IonBadge, IonButtons, IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
+  imports: [IonFabButton, IonFab, IonButtons, IonIcon, IonList, IonButton, IonInput, IonItem, IonCardContent, IonCardTitle, IonCardHeader, IonCard, 
     PriceFormatPipe]
 })
 export class MapComponent implements OnInit, OnDestroy {
@@ -46,10 +49,17 @@ export class MapComponent implements OnInit, OnDestroy {
 
   unreadMessagesCount = 0;
 
-  constructor(private authService: AuthService, private database: Database, private router: Router, 
-    private alertController: AlertController, private cdr: ChangeDetectorRef, private tripService: TripService,
-    private chatService: ChatService) {
-      addIcons({locationOutline,golfOutline,speedometerOutline,timeOutline,cashOutline,chatboxEllipsesOutline,chatbubblesOutline,add,closeOutline,arrowUpOutline});
+  constructor(
+    private authService: AuthService, 
+    private database: Database, 
+    private router: Router, 
+    private alertController: AlertController, 
+    private cdr: ChangeDetectorRef, 
+    private tripService: TripService,
+    private chatService: ChatService,
+    private refreshService: RefreshService
+  ) {
+      addIcons({refreshOutline,locationOutline,golfOutline,speedometerOutline,timeOutline,peopleOutline,cashOutline,chatboxEllipsesOutline,chatbubblesOutline,add,closeOutline,arrowUpOutline});
       this.activeProfile = this.authService.getActiveProfile();
   }
 
@@ -529,14 +539,18 @@ export class MapComponent implements OnInit, OnDestroy {
   async checkCurrentTrip() {
     const passengerUid = this.authService.firebaseAuth.currentUser?.uid;
     if (passengerUid) {
-      const currentTrip = await this.tripService.getCurrentTrip(passengerUid);
-      if (currentTrip) {
-        this.isInTrip = true;
-        this.tripInfo = currentTrip;
-      } else {
-        this.isInTrip = false;
-      }
-      this.cdr.detectChanges();
+      this.tripService.subscribeToCurrentTrip(passengerUid);
+      this.tripService.currentTrip$.subscribe(currentTrip => {
+        if (currentTrip) {
+          this.isInTrip = true;
+          this.tripInfo = currentTrip;
+        } else {
+          this.isInTrip = false;
+        }
+        this.cdr.detectChanges();
+      });
+    } else {
+      console.error('Passenger UID is undefined');
     }
     console.log('Is in trip:', this.isInTrip);
   }
@@ -544,14 +558,15 @@ export class MapComponent implements OnInit, OnDestroy {
   listenForTripCompletion() {
     const currentUser = this.authService.currentUserSig();
     if (currentUser) {
-      this.tripService.listenForPassengerNotifications(currentUser.uid, (notifications) => {
-        notifications.forEach(notification => {
-          if (notification.message === 'El viaje ha finalizado.') {
-            this.router.navigate(['/main/rides']);
-            this.cdr.detectChanges();
-          }
-        });
+      this.tripService.currentTrip$.subscribe(currentTrip => {
+        if (currentTrip && currentTrip.completed) {
+          this.isInTrip = false;
+          this.tripInfo = null;
+          this.cdr.detectChanges();
+        }
       });
+    } else {
+      console.error('Current user is undefined');
     }
   }
 
@@ -572,5 +587,9 @@ export class MapComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error starting chat:', error);
     }
+  }
+
+  doRefresh(event: any) {
+    this.refreshService.doRefresh(event);
   }
 }

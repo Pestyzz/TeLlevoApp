@@ -2,7 +2,7 @@ import { Component, effect, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { IonAvatar, IonList, IonItem, IonLabel, IonText, IonButton, 
-  AlertController, IonIcon } from '@ionic/angular/standalone';
+  AlertController, IonIcon, IonContent, IonRefresher, IonRefresherContent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { arrowBackOutline, person, trashOutline, addOutline, addCircleOutline, createOutline, 
   logOutOutline } from 'ionicons/icons';
@@ -11,14 +11,16 @@ import { UserInterface } from 'src/app/interfaces/user.interface';
 import { RutFormatPipe } from 'src/app/pipes/rut-format.pipe';
 import { VehicleInterface } from 'src/app/interfaces/vehicle.interface';
 import { plateValidator } from 'src/app/validators/plate.validator';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
+import { NetworkService } from 'src/app/services/network.service';
+import { RefreshService } from 'src/app/services/refresh.service';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
   standalone: true,
-  imports: [IonIcon, IonButton, IonText, IonLabel, IonItem, 
+  imports: [IonRefresherContent, IonRefresher, IonContent, IonIcon, IonButton, IonText, IonLabel, IonItem, 
     IonList, IonAvatar, CommonModule, FormsModule, RutFormatPipe]
 })
 export class ProfilePage implements OnInit, OnDestroy {
@@ -29,7 +31,9 @@ export class ProfilePage implements OnInit, OnDestroy {
   activeProfile: 'passenger' | 'driver' | null = null;
   private profileSubscription: Subscription | null = null;
 
-  constructor(private authService: AuthService, private fb: FormBuilder, private alertController: AlertController) {
+  constructor(private authService: AuthService, private fb: FormBuilder, private alertController: AlertController,
+    private networkService: NetworkService, private refreshService: RefreshService
+  ) {
     addIcons({createOutline,logOutOutline,trashOutline,addCircleOutline,addOutline,arrowBackOutline,person});
 
     this.profileForm = this.fb.nonNullable.group({
@@ -167,6 +171,17 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async confirmLogout() {
+    const isOnline = await firstValueFrom(this.networkService.isOnline);
+    if (!isOnline) {
+      const alert = await this.alertController.create({
+        header: 'Sin Conexión',
+        message: 'No puedes cerrar sesión sin conexión a internet.',
+        buttons: ['OK']
+      });
+      
+      await alert.present();
+      return;
+    }
     const alert = await this.alertController.create({
       header: 'Confirmar',
       message: 'Estás seguro de que deseas cerrar sesión?',
@@ -255,5 +270,9 @@ export class ProfilePage implements OnInit, OnDestroy {
       console.error('Error eliminando vehículo:', error);
       alert('Error eliminando vehículo');
     }
+  }
+
+  doRefresh(event: any) {
+    this.refreshService.doRefresh(event);
   }
 }

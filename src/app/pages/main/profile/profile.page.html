@@ -1,77 +1,83 @@
-<div class="content-container">
-  <div class="ion-padding profile-container">
-    <ion-avatar class="profile-avatar">
-      <img src="https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_25.png" alt="Profile Picture">
-    </ion-avatar>
-    <ion-list  class="ion-padding ion-text-capitalize">
-      <header>
-        <h2 class="profile-name ion-text-center">{{ user?.firstName }} {{ user?.lastName }}</h2>
-      </header>
-      <ion-item>
-        <ion-label>Correo Electrónico:</ion-label>
-        <ion-text>{{ user?.email }}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Teléfono:</ion-label>
-        <ion-text>+56 9 {{ user?.phone }}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Rut:</ion-label>
-        <ion-text>{{ (user?.rut || '') | rutFormat }}</ion-text>
-      </ion-item>
-      <ion-button expand="block" fill="solid" color="primary" shape="round" class="edit-button" (click)="openEditAlert()">
-        <ion-icon name="create-outline" class="button-icon"></ion-icon>
-        Editar Perfil
-      </ion-button>
-      <ion-button expand="block" fill="solid" color="danger" shape="round" class="edit-button" (click)="confirmLogout()">
-        <ion-icon name="log-out-outline" class="button-icon"></ion-icon>
-        Cerrar Sesión
-      </ion-button>
-    </ion-list>
-  </div>
+<ion-content color="tertiary">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  @if (activeProfile === 'driver') {
-    <div class="ion-padding">
-      @if (vehicle) {
-        <ion-list class="ion-padding">
-          <header>
-            <h2 class="ion-text-center">{{ vehicle.brand }} {{ vehicle.model }}</h2>
-          </header>
-          <ion-item>
-            <ion-label>Patente:</ion-label>
-            <ion-text>{{ vehicle.plate }}</ion-text>
-          </ion-item>
-          <ion-item>
-            <ion-label>Marca:</ion-label>
-            <ion-text>{{ vehicle.brand }}</ion-text>
-          </ion-item>
-          <ion-item>
-            <ion-label>Modelo:</ion-label>
-            <ion-text>{{ vehicle.model }}</ion-text>
-          </ion-item>
-          <ion-item>
-            <ion-label>Color:</ion-label>
-            <ion-text>{{ vehicle.color }}</ion-text>
-          </ion-item>
-          <ion-item>
-            <ion-label>Capacidad:</ion-label>
-            <ion-text>{{ vehicle.capacity }}</ion-text>
-          </ion-item>
-          <ion-button expand="block" fill="solid" color="primary" shape="round" class="edit-button" (click)="openVehicleAlert(true)">
-            <ion-icon name="create-outline" class="button-icon"></ion-icon>
-            Editar Vehículo
-          </ion-button>
-          <ion-button expand="block" fill="solid" color="danger" shape="round" class="edit-button" (click)="deleteVehicle()">
-            <ion-icon name="trash-outline" class="button-icon"></ion-icon>
-            Eliminar Vehículo
-          </ion-button>
-        </ion-list>
-      } @else {
-        <ion-button expand="block" fill="solid" color="dark" shape="round" class="edit-button" (click)="openVehicleAlert(false)">
-          <ion-icon name="add-circle-outline" class="button-icon"></ion-icon>
-          Añadir Vehículo
+  <div class="content-container">
+    <div class="ion-padding profile-container">
+      <ion-avatar class="profile-avatar">
+        <img src="https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_25.png" alt="Profile Picture">
+      </ion-avatar>
+      <ion-list  class="ion-padding ion-text-capitalize">
+        <header>
+          <h2 class="profile-name ion-text-center">{{ user?.firstName }} {{ user?.lastName }}</h2>
+        </header>
+        <ion-item>
+          <ion-label>Correo Electrónico:</ion-label>
+          <ion-text>{{ user?.email }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Teléfono:</ion-label>
+          <ion-text>+56 9 {{ user?.phone }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Rut:</ion-label>
+          <ion-text>{{ (user?.rut || '') | rutFormat }}</ion-text>
+        </ion-item>
+        <ion-button expand="block" fill="solid" color="primary" shape="round" class="edit-button" (click)="openEditAlert()">
+          <ion-icon name="create-outline" class="button-icon"></ion-icon>
+          Editar Perfil
         </ion-button>
-      }
+        <ion-button expand="block" fill="solid" color="danger" shape="round" class="edit-button" (click)="confirmLogout()">
+          <ion-icon name="log-out-outline" class="button-icon"></ion-icon>
+          Cerrar Sesión
+        </ion-button>
+      </ion-list>
     </div>
-  }
-</div>
+  
+    @if (activeProfile === 'driver') {
+      <div class="ion-padding">
+        @if (vehicle) {
+          <ion-list class="ion-padding">
+            <header>
+              <h2 class="ion-text-center">{{ vehicle.brand }} {{ vehicle.model }}</h2>
+            </header>
+            <ion-item>
+              <ion-label>Patente:</ion-label>
+              <ion-text>{{ vehicle.plate }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>Marca:</ion-label>
+              <ion-text>{{ vehicle.brand }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>Modelo:</ion-label>
+              <ion-text>{{ vehicle.model }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>Color:</ion-label>
+              <ion-text>{{ vehicle.color }}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>Capacidad:</ion-label>
+              <ion-text>{{ vehicle.capacity }}</ion-text>
+            </ion-item>
+            <ion-button expand="block" fill="solid" color="primary" shape="round" class="edit-button" (click)="openVehicleAlert(true)">
+              <ion-icon name="create-outline" class="button-icon"></ion-icon>
+              Editar Vehículo
+            </ion-button>
+            <ion-button expand="block" fill="solid" color="danger" shape="round" class="edit-button" (click)="deleteVehicle()">
+              <ion-icon name="trash-outline" class="button-icon"></ion-icon>
+              Eliminar Vehículo
+            </ion-button>
+          </ion-list>
+        } @else {
+          <ion-button expand="block" fill="solid" color="dark" shape="round" class="edit-button" (click)="openVehicleAlert(false)">
+            <ion-icon name="add-circle-outline" class="button-icon"></ion-icon>
+            Añadir Vehículo
+          </ion-button>
+        }
+      </div>
+    }
+  </div>
+</ion-content>

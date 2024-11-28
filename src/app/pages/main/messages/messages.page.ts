@@ -1,41 +1,46 @@
 import { Component, OnInit } from '@angular/core';
 import { ChatService } from 'src/app/services/chat.service';
 import { AuthService } from '../../../services/auth.service';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonList, IonItem, IonLabel, IonIcon, IonText, IonSpinner } from "@ionic/angular/standalone";
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonList, IonItem, IonLabel, IonIcon, IonText, IonSpinner, IonRefresher, IonRefresherContent } from "@ionic/angular/standalone";
 import { Router } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { chatbubbles, personOutline } from 'ionicons/icons';
 import { ChatMessage } from '../../../interfaces/chat-message.interface';
+import { RefreshService } from 'src/app/services/refresh.service';
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.page.html',
   styleUrls: ['./messages.page.scss'],
   standalone: true,
-  imports: [IonSpinner, IonText, IonIcon, IonLabel, IonItem, IonList, IonHeader, IonToolbar, IonTitle, IonContent, 
-    IonInput, IonButton, JsonPipe]
+  imports: [IonRefresherContent, IonRefresher, IonText, IonIcon, IonLabel, IonItem, IonList, IonHeader, IonToolbar, IonTitle, IonContent]
 })
 export class MessagesPage implements OnInit {
   chats: any[] = [];
   currentUserUid: string = '';
   userNames: { [key: string]: string } = {};
 
-  constructor(private chatService: ChatService, private authService: AuthService, private router: Router) {
+  constructor(
+    private chatService: ChatService, 
+    private authService: AuthService, 
+    private router: Router,
+    private refreshService: RefreshService
+  ) {
     addIcons({chatbubbles,personOutline});
   }
 
   ngOnInit() {
-    console.log('ngOnInit executed'); // Verificar que ngOnInit se ejecuta
+    console.log('ngOnInit executed');
     const currentUser = this.authService.firebaseAuth.currentUser;
     if (currentUser) {
-      console.log('Current user:', currentUser.uid); // Verificar que el usuario está autenticado
+      console.log('Current user:', currentUser.uid);
       this.currentUserUid = currentUser.uid;
       this.authService.getUserData(currentUser.uid).subscribe(user => {
         this.userNames[currentUser.uid] = user.firstName + ' ' + user.lastName;
       });
       this.chatService.getChats(currentUser.uid).subscribe(chats => {
-        console.log('Chats:', chats); // Añade un log para verificar los datos
+        console.log('Chats:', chats);
         this.chats = chats;
         this.loadUserNames();
       });
@@ -49,10 +54,10 @@ export class MessagesPage implements OnInit {
       if (chat.participants && typeof chat.participants === 'object') {
         const participantUids = Object.keys(chat.participants);
         const partnerUid = participantUids.find(uid => uid !== this.currentUserUid);
-        console.log('Partner UID:', partnerUid); // Verificar el UID del participante
+        console.log('Partner UID:', partnerUid);
         if (partnerUid && !this.userNames[partnerUid]) {
           this.authService.getUserData(partnerUid).subscribe(user => {
-            console.log('User data:', user); // Verificar los datos del usuario
+            console.log('User data:', user);
             this.userNames[partnerUid] = user.firstName + ' ' + user.lastName;
           });
         }
@@ -64,7 +69,7 @@ export class MessagesPage implements OnInit {
     if (chat.participants && typeof chat.participants === 'object') {
       const participantUids = Object.keys(chat.participants);
       const partnerUid = participantUids.find(uid => uid !== this.currentUserUid);
-      console.log('Getting name for UID:', partnerUid); // Verificar el UID del participante
+      console.log('Getting name for UID:', partnerUid);
       if (partnerUid) {
         return this.userNames[partnerUid] || 'Unknown';
       }
@@ -83,7 +88,11 @@ export class MessagesPage implements OnInit {
   }
 
   openChat(chatId: string) {
-    console.log('Opening chat:', chatId); // Añade un log para verificar los datos
+    console.log('Opening chat:', chatId);
     this.router.navigate(['/main/chat', chatId]);
+  }
+
+  doRefresh(event: any) {
+    this.refreshService.doRefresh(event);
   }
 }
