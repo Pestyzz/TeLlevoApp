@@ -12,6 +12,8 @@ export class TripService {
   private tripStarted = false;
   private tripsSubject = new BehaviorSubject<any[]>([]);
   trips$ = this.tripsSubject.asObservable();
+  private currentTripSubject = new BehaviorSubject<any>(null);
+  currentTrip$ = this.currentTripSubject.asObservable();
   
   private joinRequestsRef: any;
 
@@ -138,19 +140,40 @@ export class TripService {
     }
   }
 
-  async getCurrentTrip(passengerUid: string): Promise<any> {
+  // async getCurrentTrip(passengerUid: string): Promise<any> {
+  //   const tripRef = ref(this.database, `trip`);
+  //   const snapshot = await get(tripRef);
+  //   if (snapshot.exists()) {
+  //     const trips = snapshot.val();
+  //     for (const tripId in trips) {
+  //       const trip = trips[tripId];
+  //       if (trip.passengers && trip.passengers.some((p: any) => p.uid === passengerUid) && !trip.completed) {
+  //         localStorage.setItem('currentTrip', JSON.stringify(trip));
+  //         return trip;
+  //       }
+  //     }
+  //   }
+  //   localStorage.removeItem('currentTrip');
+  //   return null;
+  // }
+
+  subscribeToCurrentTrip(passengerUid: string) {
     const tripRef = ref(this.database, `trip`);
-    const snapshot = await get(tripRef);
-    if (snapshot.exists()) {
-      const trips = snapshot.val();
-      for (const tripId in trips) {
-        const trip = trips[tripId];
-        if (trip.passengers && trip.passengers.some((p: any) => p.uid === passengerUid) && !trip.completed) {
-          return trip;
+    onValue(tripRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const trips = snapshot.val();
+        for (const tripId in trips) {
+          const trip = trips[tripId];
+          if (trip.passengers && trip.passengers.some((p: any) => p.uid === passengerUid) && !trip.completed) {
+            localStorage.setItem('currentTrip', JSON.stringify(trip));
+            this.currentTripSubject.next(trip);
+            return;
+          }
         }
       }
-    }
-    return null;
+      localStorage.removeItem('currentTrip');
+      this.currentTripSubject.next(null);
+    });
   }
 
   async addCompletedTrip(trip: any) {
@@ -179,4 +202,6 @@ export class TripService {
     });
     return completedTrips;
   }
+
+
 }

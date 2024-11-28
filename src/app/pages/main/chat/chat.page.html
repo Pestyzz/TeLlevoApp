@@ -5,6 +5,10 @@
 </ion-header>
 
 <ion-content color="tertiary">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  
   <ion-list>
     @for (message of messages; track $index) {
       <div [class.message-sent]="message.sender === currentUserUid" [class.message-received]="message.sender !== currentUserUid">

@@ -1,11 +1,57 @@
-<ion-header>
-  <ion-toolbar color="tertiary">
-    <ion-icon name="car" color="primary" slot="start" size="large" class="ion-padding-start"></ion-icon>
-    <ion-title>Viajes</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content color="tertiary">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-item-divider color="teritary" class="header">
+    <ion-icon name="hourglass" color="primary" slot="start" size="large"></ion-icon>
+    <ion-title>Viaje en curso</ion-title>
+  </ion-item-divider>
+  <ion-list class="ion-margin ion-padding">
+    @if (currentTrip) {
+      <ion-item>
+        <ion-icon name="car-sport-outline" size="large" color="dark" slot="start"></ion-icon>
+        <ion-label class="ion-padding ion-text-capitalize">
+          <h2 class="ellipsis">
+            <ion-icon name="golf-outline"></ion-icon>
+            {{ getMainLocality(currentTrip.destination.name) }}
+          </h2>
+          <p class="ellipsis">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ currentTrip.origin.name }}
+          </p>
+          <p>
+            <ion-icon name="person-outline"></ion-icon>
+            {{ currentTrip.driver.firstName }} {{ currentTrip.driver.lastName }}
+          </p>
+          <p>
+            <ion-icon name="car-sport-outline"></ion-icon>
+            {{ currentTrip.vehicle.brand }} {{ currentTrip.vehicle.model }} {{
+            currentTrip.vehicle.color }}
+          </p>
+          <p>
+            <ion-icon name="body-outline"></ion-icon>
+            Capacidad: {{ (currentTrip.passengers?.length || 0) + 1 }}/{{
+            currentTrip.vehicle.capacity }}
+          </p>
+        </ion-label>
+        <ion-button fill="clear" slot="end" (click)="viewTrip(currentTrip)">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    } @else {
+      <div class="no-rides">
+        <ion-text class="ion-padding">
+          <h2 class="ion-text-center">No hay viaje en curso.</h2>
+        </ion-text>
+      </div>
+    }
+  </ion-list>
+
+  <ion-item-divider color="tertiary" class="header">
+    <ion-icon name="car" color="primary" slot="start" size="large"></ion-icon>
+    <ion-title>Viajes disponibles</ion-title>
+  </ion-item-divider>
   @if (availableTrips.length > 0) {
   <ion-list class="ion-margin ion-padding">
     @for (trip of availableTrips; track $index) {

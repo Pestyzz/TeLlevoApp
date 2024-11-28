@@ -6,6 +6,10 @@
 </ion-header>
   
 <ion-content color="tertiary">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  
   @if (chats.length > 0) {
     <ion-list class="ion-margin ion-padding">
       @for (chat of chats; track $index) {

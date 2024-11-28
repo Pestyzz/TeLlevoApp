@@ -53,7 +53,7 @@ export const routes: Routes = [
       {
         path: 'rides',
         loadComponent: () => import('./pages/main/rides/rides.page').then( m => m.RidesPage),
-        canActivate: [passengerGuard]
+        //canActivate: [passengerGuard]
       },
       {
         path: 'messages',
