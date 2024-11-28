@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonInput, IonButton, IonFooter, IonIcon } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonInput, IonButton, IonFooter, IonIcon, IonRefresher, IonRefresherContent } from '@ionic/angular/standalone';
 import { ActivatedRoute } from '@angular/router';
 import { ChatService } from 'src/app/services/chat.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { addIcons } from 'ionicons';
 import { paperPlane } from 'ionicons/icons';
+import { RefreshService } from 'src/app/services/refresh.service';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.page.html',
   styleUrls: ['./chat.page.scss'],
   standalone: true,
-  imports: [IonIcon, IonFooter, IonLabel, IonItem, IonList, IonContent, IonHeader, IonTitle, IonToolbar, IonInput, IonButton, CommonModule, FormsModule]
+  imports: [IonRefresherContent, IonRefresher, IonIcon, IonFooter, IonLabel, IonItem, IonList, IonContent, IonHeader, IonTitle, IonToolbar, IonInput, IonButton, CommonModule, FormsModule]
 })
 export class ChatPage implements OnInit {
   chatId: string = '';
@@ -23,7 +24,12 @@ export class ChatPage implements OnInit {
   userNames: { [key: string]: string } = {};
   chatName: string = '';
 
-  constructor(private route: ActivatedRoute, private chatService: ChatService, private authService: AuthService) { 
+  constructor(
+    private route: ActivatedRoute, 
+    private chatService: ChatService, 
+    private authService: AuthService,
+    private refreshService: RefreshService
+  ) { 
     addIcons({paperPlane});
     this.chatId = this.route.snapshot.paramMap.get('chatId')!;
   }
@@ -68,5 +74,9 @@ export class ChatPage implements OnInit {
         this.newMessage = '';
       });
     }
+  }
+
+  doRefresh(event: any) {
+    this.refreshService.doRefresh(event);
   }
 }

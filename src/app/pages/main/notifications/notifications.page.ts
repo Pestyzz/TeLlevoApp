@@ -5,21 +5,29 @@ import { AlertController } from '@ionic/angular';
 import { TripService } from 'src/app/services/trip.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { IonList, IonItem, IonLabel, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonText } from "@ionic/angular/standalone";
+import { IonList, IonItem, IonLabel, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonText, IonRefresherContent, IonRefresher } from "@ionic/angular/standalone";
 import { addIcons } from 'ionicons';
 import { notifications, carOutline, personOutline } from 'ionicons/icons';
+import { RefreshService } from 'src/app/services/refresh.service';
 
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   standalone: true,
-  imports: [IonText, IonIcon, IonContent, IonTitle, IonToolbar, IonHeader, IonLabel, IonItem, IonList, CommonModule]
+  imports: [IonRefresher, IonRefresherContent, IonText, IonIcon, IonContent, IonTitle, IonToolbar, IonHeader, IonLabel, IonItem, IonList, CommonModule]
 })
 export class NotificationsPage implements OnInit {
   notifications: any[] = [];
 
-  constructor(private database: Database, private alertController: AlertController, private tripService: TripService, private authService: AuthService, private notificationService: NotificationService) {
+  constructor(
+    private database: Database, 
+    private alertController: AlertController, 
+    private tripService: TripService, 
+    private authService: AuthService, 
+    private notificationService: NotificationService,
+    private refreshService: RefreshService
+  ) {
     addIcons({notifications,personOutline,carOutline});
   }
 
@@ -88,5 +96,9 @@ export class NotificationsPage implements OnInit {
   async updateNotificationHandledStatus(driverUid: string, notification: any) {
     const notificationRef = ref(this.database, `notifications/${driverUid}/${notification.key}`);
     await set(notificationRef, notification);
+  }
+
+  doRefresh(event: any) {
+    this.refreshService.doRefresh(event);
   }
 }

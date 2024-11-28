@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonButton, IonIcon, 
-  IonText, IonItemDivider } from '@ionic/angular/standalone';
+  IonText, IonItemDivider, IonRefresher, IonRefresherContent } from '@ionic/angular/standalone';
 import { TripService } from 'src/app/services/trip.service';
 import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
@@ -11,13 +11,14 @@ import { carSportOutline, personOutline, locationOutline, golfOutline, chevronFo
   hourglass} from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { RefreshService } from 'src/app/services/refresh.service';
 
 @Component({
   selector: 'app-rides',
   templateUrl: './rides.page.html',
   styleUrls: ['./rides.page.scss'],
   standalone: true,
-  imports: [IonItemDivider, IonText, IonTitle, IonContent, IonIcon, IonButton, IonLabel, IonItem, IonList, CommonModule, FormsModule]
+  imports: [IonRefresherContent, IonRefresher, IonItemDivider, IonText, IonTitle, IonContent, IonIcon, IonButton, IonLabel, IonItem, IonList, CommonModule, FormsModule]
 })
 export class RidesPage implements OnInit, OnDestroy {
   availableTrips: any[] = [];
@@ -25,7 +26,9 @@ export class RidesPage implements OnInit, OnDestroy {
   private tripsSubscription: Subscription | null = null;
   private currentTripSubscription: Subscription | null = null;
 
-  constructor(private tripService: TripService, private router: Router, private authService: AuthService) {
+  constructor(private tripService: TripService, private router: Router, private authService: AuthService,
+    private refreshService: RefreshService
+  ) {
     addIcons({car,carSportOutline,golfOutline,locationOutline,personOutline,bodyOutline,
       chevronForwardOutline,notifications,hourglass});
    }
@@ -68,5 +71,9 @@ export class RidesPage implements OnInit, OnDestroy {
 
   viewTrip(trip: any) {
     this.router.navigate(['/main/map'], { state: { trip } });
+  }
+
+  doRefresh(event: any) {
+    this.refreshService.doRefresh(event);
   }
 }
