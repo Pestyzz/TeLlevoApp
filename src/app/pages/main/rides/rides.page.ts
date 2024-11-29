@@ -52,9 +52,21 @@ export class RidesPage implements OnInit, OnDestroy {
   loadCurrentTrip() {
     const passengerUid = this.authService.currentUserSig()?.uid;
     if (passengerUid) {
+      const storedTrip = localStorage.getItem('currentTrip');
+      if (storedTrip) {
+        this.currentTrip = JSON.parse(storedTrip);
+        console.log('Loaded currentTrip from localStorage:', this.currentTrip);
+      } else {
+        console.log('No currentTrip found in localStorage');
+      }
       this.tripService.subscribeToCurrentTrip(passengerUid);
       this.currentTripSubscription = this.tripService.currentTrip$.subscribe(trip => {
-        this.currentTrip = trip;
+        if (trip) {
+          this.currentTrip = trip;
+          console.log('Updated currentTrip from subscription:', this.currentTrip);
+        } else {
+          console.log('No currentTrip found in subscription');
+        }
       });
     } else {
       console.error('Passenger UID is undefined');

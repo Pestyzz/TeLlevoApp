@@ -162,17 +162,24 @@ export class TripService {
     onValue(tripRef, (snapshot) => {
       if (snapshot.exists()) {
         const trips = snapshot.val();
+        let tripFound = false;
         for (const tripId in trips) {
           const trip = trips[tripId];
           if (trip.passengers && trip.passengers.some((p: any) => p.uid === passengerUid) && !trip.completed) {
             localStorage.setItem('currentTrip', JSON.stringify(trip));
             this.currentTripSubject.next(trip);
-            return;
+            tripFound = true;
+            break;
           }
         }
+        if (!tripFound) {
+          localStorage.removeItem('currentTrip');
+          this.currentTripSubject.next(null);
+        }
+      } else {
+        localStorage.removeItem('currentTrip');
+        this.currentTripSubject.next(null);
       }
-      localStorage.removeItem('currentTrip');
-      this.currentTripSubject.next(null);
     });
   }
 
