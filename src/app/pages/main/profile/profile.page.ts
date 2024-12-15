@@ -164,24 +164,13 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
-    this.user = null;
-    this.vehicle = null;
+    // this.user = null;
+    // this.vehicle = null;
     this.profileForm.reset();
     this.vehicleForm.reset();
   }
 
   async confirmLogout() {
-    const isOnline = await firstValueFrom(this.networkService.isOnline);
-    if (!isOnline) {
-      const alert = await this.alertController.create({
-        header: 'Sin Conexión',
-        message: 'No puedes cerrar sesión sin conexión a internet.',
-        buttons: ['OK']
-      });
-      
-      await alert.present();
-      return;
-    }
     const alert = await this.alertController.create({
       header: 'Confirmar',
       message: 'Estás seguro de que deseas cerrar sesión?',

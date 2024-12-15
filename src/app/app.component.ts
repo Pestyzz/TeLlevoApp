@@ -60,8 +60,8 @@ export class AppComponent implements OnInit {
           this.router.navigate(['/auth/auth-screen']);
         }
       } else {
-        this.authService.clearCurrentUser();
-        this.authService.clearActiveProfile();
+        // this.authService.clearCurrentUser();
+        // this.authService.clearActiveProfile();
         this.router.navigate(['/auth/auth-screen']);
       }
     });

@@ -1,10 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
-   updateProfile, user, updatePassword} from '@angular/fire/auth';
+import {
+  Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
+  updateProfile, user, updatePassword
+} from '@angular/fire/auth';
 import { Firestore, deleteDoc, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore';
-import { BehaviorSubject, from, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, firstValueFrom, from, Observable, of, switchMap, throwError } from 'rxjs';
 import { UserInterface } from '../interfaces/user.interface';
 import { VehicleInterface } from '../interfaces/vehicle.interface';
+import { NetworkService } from './network.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +22,7 @@ export class AuthService {
   vehicleSig = signal<VehicleInterface | null | undefined>(undefined);
   activeProfileSig = signal<'passenger' | 'driver' | null>(null);
 
-  constructor() {
+  constructor(private networkService: NetworkService) {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       this.currentUserSig.set(JSON.parse(storedUser));
@@ -37,60 +40,85 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<void> {
-    const promise = signInWithEmailAndPassword(this.firebaseAuth, email, password)
-    .then(async response => {
-      this.clearCurrentUser();
-      this.clearActiveProfile();
-      this.clearVehicle();
-
-      const userDocRef = doc(this.firestore, `user/${response.user.uid}`);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data() as UserInterface;
-          this.setCurrentUser(userData);
-
-          let activeProfile = this.getActiveProfile();
-          if (!activeProfile) {
-            if (userData.passenger && !userData.driver) {
-              activeProfile = 'passenger';
-            } else if (userData.driver && !userData.passenger) {
-              activeProfile = 'driver';
+    return from(this.networkService.isOnline).pipe(
+      catchError(() => {
+        return throwError(() => new Error('Network Status check failed'));
+      }),
+      switchMap(isOnline => {
+        if (!isOnline) {
+          const storedCredentials = localStorage.getItem('credentials');
+          if (storedCredentials) {
+            const { email: storedEmail, password: storedPassword } = JSON.parse(storedCredentials);
+            if (email === storedEmail && password === storedPassword) {
+              this.authStateSubject.next('loggedIn');
+              return from(Promise.resolve());
             } else {
-              activeProfile = 'driver';
+              return throwError(() => new Error('Offline mode. Stored credentials do not match'));
             }
-            this.setActiveProfile(activeProfile);
+          } else {
+            return throwError(() => new Error('Offline mode. No stored credentials'));
           }
-
-          this.authStateSubject.next('loggedIn');
         }
-    })
-    .catch(error => {
-      throw new Error(error.code);
-    });   
-    
-    return from(promise);
+
+        const promise = signInWithEmailAndPassword(this.firebaseAuth, email, password)
+          .then(async response => {
+            this.clearCurrentUser();
+            this.clearActiveProfile();
+            this.clearVehicle();
+
+            const userDocRef = doc(this.firestore, `user/${response.user.uid}`);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+              const userData = userDoc.data() as UserInterface;
+              this.setCurrentUser(userData);
+
+              let activeProfile = this.getActiveProfile();
+              if (!activeProfile) {
+                if (userData.passenger && !userData.driver) {
+                  activeProfile = 'passenger';
+                } else if (userData.driver && !userData.passenger) {
+                  activeProfile = 'driver';
+                } else {
+                  activeProfile = 'driver';
+                }
+                this.setActiveProfile(activeProfile);
+              }
+
+              localStorage.setItem('credentials', JSON.stringify({ email, password }));
+              this.authStateSubject.next('loggedIn');
+            }
+          })
+          .catch(error => {
+            throw new Error(error.code);
+          });
+
+        return from(promise);
+      })
+    )
   }
 
   signUp(email: string, username: string, password: string, additionalData: any): Observable<void> {
     const promise = createUserWithEmailAndPassword(this.firebaseAuth, email, password)
-    .then(response => {
-      return updateProfile(response.user, { displayName: username }).then(() => {
-        const userDocRef = doc(this.firestore, `user/${response.user.uid}`);
-        return setDoc(userDocRef, {
-          uid: response.user.uid,
-          firstName: additionalData.firstName,
-          lastName: additionalData.lastName,
-          rut: additionalData.rut,
-          email: response.user.email,
-          phone: additionalData.phone,
-          passenger: additionalData.passenger,
-          driver: additionalData.driver
+      .then(response => {
+        return updateProfile(response.user, { displayName: username }).then(async () => {
+          const userDocRef = doc(this.firestore, `user/${response.user.uid}`);
+          await setDoc(userDocRef, {
+            uid: response.user.uid,
+            firstName: additionalData.firstName,
+            lastName: additionalData.lastName,
+            rut: additionalData.rut,
+            email: response.user.email,
+            phone: additionalData.phone,
+            passenger: additionalData.passenger,
+            driver: additionalData.driver
+          });
+
+          localStorage.setItem('credentials', JSON.stringify({ email, password }));
         });
+      })
+      .catch(error => {
+        throw new Error(error.code);
       });
-    })
-    .catch(error => {
-      throw new Error(error.code);
-    });
 
     this.authStateSubject.next('registered');
     return from(promise);
@@ -98,19 +126,19 @@ export class AuthService {
 
   resetPassword(email: string): Observable<void> {
     const promise = sendPasswordResetEmail(this.firebaseAuth, email)
-    .then(() => {})
-    .catch(error => {
-      throw new Error(error.code);
-    });
+      .then(() => { })
+      .catch(error => {
+        throw new Error(error.code);
+      });
 
     return from(promise);
   }
 
   logout() {
     signOut(this.firebaseAuth).then(() => {
-      this.clearCurrentUser();
-      this.clearActiveProfile();
-      this.clearVehicle();
+      // this.clearCurrentUser();
+      // this.clearActiveProfile();
+      // this.clearVehicle();
       this.authStateSubject.next(null);
     });
   }
