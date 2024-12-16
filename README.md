@@ -3,7 +3,7 @@
    <p><i>Revolucionando tu manera de viajar</i></p>
 
   <h1>
-    <a href="./apk/TeLlevoAPP.apk" download="TeLlevoAPP.apk">DESCARGA AQUÍ</a>
+    <a href="https://raw.githubusercontent.com/Pestyzz/TeLlevoApp/master/apk/TeLlevoAPP.apk" download="TeLlevoAPP.apk">DESCARGA AQUÍ</a>
   </h1>
   <h2>👥 Colaboradores</h2>
   <p>Bastián Ñiripil</p>
